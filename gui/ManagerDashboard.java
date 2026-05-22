@@ -8,6 +8,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import models.Employee;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
@@ -65,17 +69,23 @@ public class ManagerDashboard extends BaseDashboard {
         userInfo.getChildren().addAll(nameLabel, roleLabel, typeLabel);
 
         Button dashBtn = createMenuButton("Dashboard", "");
-        Button coursesBtn = createMenuButton("All Courses", "");
-        Button studentsBtn = createMenuButton("Student Reports", "");
-        Button newsBtn = createMenuButton("Manage News", "");
+        Button coursesBtn     = createMenuButton("All Courses", "");
+        Button addCourseBtn   = createMenuButton("Add Course", "");
+        Button assignBtn      = createMenuButton("Assign Teacher", "");
+        Button scheduleBtn    = createMenuButton("Gen. Schedule", "");
+        Button approveBtn     = createMenuButton("Approve Registration", "");
+        Button studentsBtn    = createMenuButton("Student Reports", "");
+        Button newsBtn        = createMenuButton("Manage News", "");
         Button officialMsgBtn = createMenuButton("Broadcast Message", "");
-        Button inboxBtn = createMenuButton("Inbox", "");
-        Button complaintsBtn    = createMenuButton("Complaints", "");
-        Button techSupportBtn   = createMenuButton("Tech Support", "");
-        Button researchReqBtn   = createMenuButton("Researcher Requests", "");
+        Button sendMsgBtn     = createMenuButton("Send Message", "");
+        Button inboxBtn       = createMenuButton("Inbox", "");
+        Button complaintsBtn  = createMenuButton("Complaints", "");
+        Button researchReqBtn = createMenuButton("Researcher Requests", "");
+        Button techSupportBtn = createMenuButton("Tech Support", "");
 
-        sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, coursesBtn, studentsBtn,
-            newsBtn, officialMsgBtn, inboxBtn, complaintsBtn, researchReqBtn, techSupportBtn);
+        sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, coursesBtn, addCourseBtn,
+            assignBtn, scheduleBtn, approveBtn, studentsBtn,
+            newsBtn, officialMsgBtn, sendMsgBtn, inboxBtn, complaintsBtn, researchReqBtn, techSupportBtn);
 
         if (core.DataStore.getInstance().isResearcher(manager)) {
             Button researchBtn = createMenuButton("Researcher Mode", "");
@@ -90,9 +100,14 @@ public class ManagerDashboard extends BaseDashboard {
 
         dashBtn.setOnAction(e -> showDashboardContent());
         coursesBtn.setOnAction(e -> showAllCourses());
+        addCourseBtn.setOnAction(e -> showAddCourse());
+        assignBtn.setOnAction(e -> showAssignTeacher());
+        scheduleBtn.setOnAction(e -> showGenerateSchedule());
+        approveBtn.setOnAction(e -> showApproveRegistration());
         studentsBtn.setOnAction(e -> showStudentReports());
         newsBtn.setOnAction(e -> showManageNews());
         officialMsgBtn.setOnAction(e -> showOfficialMessage());
+        sendMsgBtn.setOnAction(e -> showSendMessage());
         inboxBtn.setOnAction(e -> showInbox());
         complaintsBtn.setOnAction(e -> showComplaints());
         researchReqBtn.setOnAction(e -> showResearcherRequests());
@@ -477,5 +492,227 @@ public class ManagerDashboard extends BaseDashboard {
         form.getChildren().addAll(new Label("Official Message:"), msgArea, sendBtn, resultLabel);
         content.getChildren().add(form);
         setContent(content);
+    }
+
+    private void showAddCourse() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Add Course"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        TextField nameField = field("Course name");
+        TextField codeField = field("Course code (e.g. CS101)");
+        TextField creditsField = field("Credits");
+        TextField yearField = field("Target year");
+        ComboBox<enums.CourseType> typeCombo = new ComboBox<>();
+        typeCombo.setItems(FXCollections.observableArrayList(enums.CourseType.values()));
+        typeCombo.setPromptText("Course type");
+        Label resultLabel = new Label("");
+
+        Button addBtn = new Button("Add Course");
+        addBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        addBtn.setOnAction(e -> {
+            try {
+                int credits = Integer.parseInt(creditsField.getText().trim());
+                int year    = Integer.parseInt(yearField.getText().trim());
+                if (nameField.getText().isBlank() || codeField.getText().isBlank() || typeCombo.getValue() == null) {
+                    resultLabel.setText("Fill all fields."); resultLabel.setTextFill(Color.ORANGE); return;
+                }
+                controller.addCourse(nameField.getText().trim(), codeField.getText().trim(), credits, year, typeCombo.getValue());
+                resultLabel.setText("Course added!"); resultLabel.setTextFill(Color.web("#27ae60"));
+                nameField.clear(); codeField.clear(); creditsField.clear(); yearField.clear(); typeCombo.setValue(null);
+            } catch (NumberFormatException ex) { resultLabel.setText("Credits and year must be numbers."); resultLabel.setTextFill(Color.RED); }
+        });
+
+        form.getChildren().addAll(new Label("Name:"), nameField, new Label("Code:"), codeField, new Label("Credits:"), creditsField, new Label("Target year:"), yearField, new Label("Type:"), typeCombo, addBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private void showAssignTeacher() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Assign Teacher to Course"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        ComboBox<Course> courseCombo = new ComboBox<>();
+        courseCombo.setItems(FXCollections.observableArrayList(DataStore.getInstance().getCourses()));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+        courseCombo.setConverter(new javafx.util.StringConverter<Course>() {
+            @Override public String toString(Course c) { return c == null ? "" : c.getCourseCode() + " — " + c.getName(); }
+            @Override public Course fromString(String s) { return null; }
+        });
+
+        ComboBox<User> teacherCombo = new ComboBox<>();
+        List<User> teachers = new ArrayList<>();
+        for (User u : DataStore.getInstance().getUsers()) if (u instanceof Teacher) teachers.add(u);
+        teacherCombo.setItems(FXCollections.observableArrayList(teachers));
+        teacherCombo.setPromptText("Select teacher");
+        teacherCombo.setPrefWidth(300);
+        teacherCombo.setConverter(new javafx.util.StringConverter<User>() {
+            @Override public String toString(User u) { return u == null ? "" : u.getFirstName() + " " + u.getLastName(); }
+            @Override public User fromString(String s) { return null; }
+        });
+
+        Label resultLabel = new Label("");
+        Button assignBtn = new Button("Assign");
+        assignBtn.setStyle("-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        assignBtn.setOnAction(e -> {
+            if (courseCombo.getValue() == null || teacherCombo.getValue() == null) { resultLabel.setText("Select course and teacher."); resultLabel.setTextFill(Color.ORANGE); return; }
+            controller.assignCourse(courseCombo.getValue(), (Teacher) teacherCombo.getValue());
+            resultLabel.setText("Assigned!"); resultLabel.setTextFill(Color.web("#27ae60"));
+        });
+
+        form.getChildren().addAll(new Label("Course:"), courseCombo, new Label("Teacher:"), teacherCombo, assignBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private void showGenerateSchedule() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Generate Course Schedule"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        ComboBox<Course> courseCombo = new ComboBox<>();
+        courseCombo.setItems(FXCollections.observableArrayList(DataStore.getInstance().getCourses()));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+        courseCombo.setConverter(new javafx.util.StringConverter<Course>() {
+            @Override public String toString(Course c) { return c == null ? "" : c.getCourseCode() + " — " + c.getName(); }
+            @Override public Course fromString(String s) { return null; }
+        });
+
+        List<User> teachers = new ArrayList<>();
+        for (User u : DataStore.getInstance().getUsers()) if (u instanceof Teacher) teachers.add(u);
+
+        ComboBox<User> teacherCombo2 = new ComboBox<>();
+        teacherCombo2.setItems(FXCollections.observableArrayList(teachers));
+        teacherCombo2.setPromptText("Select teacher");
+        teacherCombo2.setPrefWidth(300);
+        teacherCombo2.setConverter(new javafx.util.StringConverter<User>() {
+            @Override public String toString(User u) { return u == null ? "" : u.getFirstName() + " " + u.getLastName(); }
+            @Override public User fromString(String s) { return null; }
+        });
+
+        Label resultLabel = new Label("");
+        Button genBtn = new Button("Generate");
+        genBtn.setStyle("-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        genBtn.setOnAction(e -> {
+            if (courseCombo.getValue() == null || teacherCombo2.getValue() == null) { resultLabel.setText("Select course and teacher."); resultLabel.setTextFill(Color.ORANGE); return; }
+            controllers.ScheduleController sc = new controllers.ScheduleController();
+            models.Schedule lec = sc.generateSchedule(courseCombo.getValue(), (Teacher) teacherCombo2.getValue(), enums.LessonType.LECTURE);
+            models.Schedule prac = sc.generateSchedule(courseCombo.getValue(), (Teacher) teacherCombo2.getValue(), enums.LessonType.PRACTICE);
+            String res = (lec != null ? "Lecture: " + lec + "\n" : "No lecture slot available\n") +
+                         (prac != null ? "Practice: " + prac : "No practice slot available");
+            resultLabel.setText(res); resultLabel.setTextFill(Color.web("#27ae60"));
+        });
+
+        form.getChildren().addAll(new Label("Course:"), courseCombo, new Label("Teacher:"), teacherCombo2, genBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private void showApproveRegistration() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Approve Student Registration"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        List<User> studentList = new ArrayList<>();
+        for (User u : DataStore.getInstance().getUsers()) if (u instanceof Student) studentList.add(u);
+
+        ComboBox<User> studentCombo = new ComboBox<>();
+        studentCombo.setItems(FXCollections.observableArrayList(studentList));
+        studentCombo.setPromptText("Select student");
+        studentCombo.setPrefWidth(300);
+        studentCombo.setConverter(new javafx.util.StringConverter<User>() {
+            @Override public String toString(User u) { return u == null ? "" : u.getFirstName() + " " + u.getLastName() + " (" + u.getEmail() + ")"; }
+            @Override public User fromString(String s) { return null; }
+        });
+
+        ComboBox<Course> courseCombo = new ComboBox<>();
+        courseCombo.setItems(FXCollections.observableArrayList(DataStore.getInstance().getCourses()));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+        courseCombo.setConverter(new javafx.util.StringConverter<Course>() {
+            @Override public String toString(Course c) { return c == null ? "" : c.getCourseCode() + " — " + c.getName(); }
+            @Override public Course fromString(String s) { return null; }
+        });
+
+        Label resultLabel = new Label("");
+        Button approveBtn = new Button("Approve");
+        approveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        approveBtn.setOnAction(e -> {
+            if (studentCombo.getValue() == null || courseCombo.getValue() == null) { resultLabel.setText("Select student and course."); resultLabel.setTextFill(Color.ORANGE); return; }
+            controller.approveRegistration((Student) studentCombo.getValue(), courseCombo.getValue());
+            resultLabel.setText("Registration approved!"); resultLabel.setTextFill(Color.web("#27ae60"));
+        });
+
+        form.getChildren().addAll(new Label("Student:"), studentCombo, new Label("Course:"), courseCombo, approveBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private void showSendMessage() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Send Message to Employee"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        List<User> employees = new ArrayList<>();
+        for (User u : DataStore.getInstance().getUsers()) if (u instanceof models.Employee && !u.equals(manager)) employees.add(u);
+
+        ComboBox<User> toCombo = new ComboBox<>();
+        toCombo.setItems(FXCollections.observableArrayList(employees));
+        toCombo.setPromptText("Select recipient");
+        toCombo.setPrefWidth(300);
+        toCombo.setConverter(new javafx.util.StringConverter<User>() {
+            @Override public String toString(User u) { return u == null ? "" : u.getFirstName() + " " + u.getLastName() + " (" + u.getEmail() + ")"; }
+            @Override public User fromString(String s) { return null; }
+        });
+
+        TextArea msgArea = new TextArea();
+        msgArea.setPromptText("Message...");
+        msgArea.setPrefRowCount(5);
+
+        Label resultLabel = new Label("");
+        Button sendBtn = new Button("Send");
+        sendBtn.setStyle("-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        sendBtn.setOnAction(e -> {
+            if (toCombo.getValue() == null) { resultLabel.setText("Select recipient."); resultLabel.setTextFill(Color.ORANGE); return; }
+            String msg = msgArea.getText().trim();
+            if (msg.isEmpty()) { resultLabel.setText("Message cannot be empty."); resultLabel.setTextFill(Color.ORANGE); return; }
+            new controllers.EmployeeMessageController().sendEmployeeMessage(manager, toCombo.getValue(), msg);
+            resultLabel.setText("Message sent!"); resultLabel.setTextFill(Color.web("#27ae60"));
+            msgArea.clear();
+        });
+
+        form.getChildren().addAll(new Label("To:"), toCombo, new Label("Message:"), msgArea, sendBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private TextField field(String prompt) {
+        TextField f = new TextField();
+        f.setPromptText(prompt);
+        f.setPrefWidth(300);
+        return f;
     }
 }

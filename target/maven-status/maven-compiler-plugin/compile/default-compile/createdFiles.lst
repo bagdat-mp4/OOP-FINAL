@@ -6,6 +6,7 @@ models/Student.class
 models/Schedule.class
 models/RecommendationLetter.class
 controllers/ResearcherController.class
+gui/ManagerDashboard$3.class
 comparators/CitationsComparator.class
 utils/UserFactory.class
 controllers/GraduateStudentController.class
@@ -13,6 +14,7 @@ enums/UserType.class
 test/ScheduleTest.class
 gui/AdminDashboard$2.class
 views/StudentView.class
+gui/ManagerDashboard$6.class
 gui/TechSupportDashboard.class
 gui/ResearcherDashboard.class
 gui/TeacherDashboard.class
@@ -25,9 +27,11 @@ models/Employee.class
 exceptions/MaxFailedReachedException.class
 controllers/TeacherController.class
 models/ResearchPaper.class
+gui/TechSupportDashboard$3.class
 MainApp.class
 views/TeacherView.class
 models/Journal.class
+gui/ManagerDashboard$5.class
 controllers/ScheduleController.class
 views/GraduateStudentView.class
 models/TechSupportSpecialist.class
@@ -44,6 +48,7 @@ enums/LessonType.class
 enums/Language.class
 exceptions/NotAResearcherException.class
 test/AttendanceTest.class
+gui/StudentDashboard$2.class
 models/ResearcherDecorator.class
 controllers/AdminController.class
 models/Teacher.class
@@ -54,9 +59,11 @@ models/Admin.class
 views/TechSupportView.class
 models/ResearchProject.class
 gui/GraduateStudentDashboard.class
+gui/ManagerDashboard$4.class
 gui/GraduateStudentDashboard$1.class
 gui/StudentDashboard$1.class
 models/Manager.class
+gui/ManagerDashboard$7.class
 gui/LoginScreen.class
 enums/CourseType.class
 controllers/AuthController.class
@@ -80,6 +87,7 @@ models/Lesson.class
 controllers/EmployeeMessageController.class
 controllers/ManagerController.class
 models/TechSupportRequest.class
+gui/ManagerDashboard$2.class
 exceptions/LowHIndexException.class
 enums/CitationFormat.class
 controllers/TechSupportController.class
@@ -89,6 +97,7 @@ test/ManagerTest.class
 test/AuthTest.class
 enums/TeacherTitle.class
 views/BaseView.class
+gui/ManagerDashboard$1.class
 models/Comment.class
 models/UserAction.class
 test/ResearcherTest.class

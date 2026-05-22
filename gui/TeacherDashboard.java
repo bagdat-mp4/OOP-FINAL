@@ -1,8 +1,10 @@
 package gui;
 
+import controllers.EmployeeMessageController;
 import controllers.TeacherController;
 import core.DataStore;
 import enums.UrgencyLevel;
+import models.RecommendationLetter;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -56,14 +58,23 @@ public class TeacherDashboard extends BaseDashboard {
         ratingLabel.setTextFill(Color.web("#f39c12"));
         userInfo.getChildren().addAll(nameLabel, titleLabel, ratingLabel);
 
-        Button dashBtn = createMenuButton("Dashboard", "");
-        Button coursesBtn = createMenuButton("My Courses", "");
-        Button marksBtn = createMenuButton("Put Marks", "");
-        Button complaintBtn = createMenuButton("Send Complaint", "");
-        Button inboxBtn      = createMenuButton("Inbox", "");
+        Button dashBtn        = createMenuButton("Dashboard", "");
+        Button coursesBtn     = createMenuButton("My Courses", "");
+        Button marksBtn       = createMenuButton("Put Marks", "");
+        Button markReportBtn  = createMenuButton("Mark Report", "");
+        Button attendanceBtn  = createMenuButton("Mark Attendance", "");
+        Button attReportBtn   = createMenuButton("Attendance Report", "");
+        Button letterBtn      = createMenuButton("Recommendation Letter", "");
+        Button newsBtn        = createMenuButton("News", "");
+        Button complaintBtn   = createMenuButton("Send Complaint", "");
+        Button sendMsgBtn     = createMenuButton("Send Message", "");
+        Button inboxBtn       = createMenuButton("Inbox", "");
         Button techSupportBtn = createMenuButton("Tech Support", "");
 
-        sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, coursesBtn, marksBtn, complaintBtn, inboxBtn, techSupportBtn);
+        sidebar.getChildren().addAll(userInfo, new Separator(),
+            dashBtn, coursesBtn, marksBtn, markReportBtn,
+            attendanceBtn, attReportBtn, letterBtn,
+            newsBtn, complaintBtn, sendMsgBtn, inboxBtn, techSupportBtn);
 
         if (core.DataStore.getInstance().isResearcher(teacher)) {
             Button researchBtn = createMenuButton("Researcher Mode", "");
@@ -80,7 +91,13 @@ public class TeacherDashboard extends BaseDashboard {
         dashBtn.setOnAction(e -> showDashboardContent());
         coursesBtn.setOnAction(e -> showCourses());
         marksBtn.setOnAction(e -> showPutMarks());
+        markReportBtn.setOnAction(e -> showMarkReport());
+        attendanceBtn.setOnAction(e -> showMarkAttendance());
+        attReportBtn.setOnAction(e -> showAttendanceReport());
+        letterBtn.setOnAction(e -> showWriteLetter());
+        newsBtn.setOnAction(e -> showNews());
         complaintBtn.setOnAction(e -> showComplaintForm());
+        sendMsgBtn.setOnAction(e -> showSendMessage());
         inboxBtn.setOnAction(e -> showInbox());
         techSupportBtn.setOnAction(e -> showTechSupportForm());
 
@@ -302,6 +319,187 @@ public class TeacherDashboard extends BaseDashboard {
             sendBtn, resultLabel
         );
 
+        content.getChildren().add(form);
+        setContent(content);
+    }
+
+    private void showMarkReport() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Mark Report"));
+        TextArea area = new TextArea(controller.generateMarkReport(teacher));
+        area.setEditable(false);
+        area.setPrefRowCount(20);
+        area.setStyle("-fx-font-family: monospace; -fx-font-size: 13;");
+        content.getChildren().add(area);
+        setContent(content);
+    }
+
+    private void showMarkAttendance() {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Mark Attendance"));
+
+        ComboBox<Course> courseCombo = new ComboBox<>();
+        courseCombo.setItems(javafx.collections.FXCollections.observableArrayList(teacher.getActiveCourses()));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+
+        VBox studentList = new VBox(8);
+        Label resultLabel = new Label("");
+
+        courseCombo.setOnAction(e -> {
+            studentList.getChildren().clear();
+            Course c = courseCombo.getValue();
+            if (c == null) return;
+            for (Student s : c.getEnrolledStudents()) {
+                javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(15);
+                row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                Label name = new Label(s.getFirstName() + " " + s.getLastName());
+                name.setPrefWidth(200);
+                Button presentBtn = new Button("Present");
+                presentBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 14;");
+                Button absentBtn  = new Button("Absent");
+                absentBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 14;");
+                presentBtn.setOnAction(ev -> { controller.markAttendance(c, s, true);  resultLabel.setText("Saved: " + s.getFirstName() + " PRESENT"); resultLabel.setTextFill(Color.web("#27ae60")); });
+                absentBtn.setOnAction(ev ->  { controller.markAttendance(c, s, false); resultLabel.setText("Saved: " + s.getFirstName() + " ABSENT");  resultLabel.setTextFill(Color.web("#e74c3c")); });
+                row.getChildren().addAll(name, presentBtn, absentBtn);
+                studentList.getChildren().add(row);
+            }
+            if (c.getEnrolledStudents().isEmpty()) studentList.getChildren().add(new Label("No students enrolled."));
+        });
+
+        content.getChildren().addAll(new Label("Course:"), courseCombo, studentList, resultLabel);
+        setContent(content);
+    }
+
+    private void showAttendanceReport() {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Attendance Report"));
+
+        ComboBox<Course> courseCombo = new ComboBox<>();
+        courseCombo.setItems(javafx.collections.FXCollections.observableArrayList(teacher.getActiveCourses()));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+
+        TextArea area = new TextArea();
+        area.setEditable(false);
+        area.setPrefRowCount(15);
+        area.setStyle("-fx-font-family: monospace; -fx-font-size: 13;");
+
+        courseCombo.setOnAction(e -> {
+            Course c = courseCombo.getValue();
+            if (c != null) area.setText(controller.getAttendanceReport(c));
+        });
+
+        content.getChildren().addAll(new Label("Course:"), courseCombo, area);
+        setContent(content);
+    }
+
+    private void showWriteLetter() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Write Recommendation Letter"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("Student email");
+        emailField.setPrefWidth(300);
+
+        TextField purposeField = new TextField();
+        purposeField.setPromptText("Purpose (Graduate School / Scholarship / Job)");
+        purposeField.setPrefWidth(300);
+
+        Label resultLabel = new Label("");
+
+        Button writeBtn = new Button("Generate & Save Letter");
+        writeBtn.setStyle("-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+
+        TextArea preview = new TextArea();
+        preview.setEditable(false);
+        preview.setPrefRowCount(12);
+        preview.setStyle("-fx-font-family: monospace;");
+
+        writeBtn.setOnAction(e -> {
+            User u = DataStore.getInstance().findUserByEmail(emailField.getText().trim());
+            if (!(u instanceof Student)) { resultLabel.setText("Student not found!"); resultLabel.setTextFill(Color.RED); return; }
+            String purpose = purposeField.getText().trim();
+            if (purpose.isEmpty()) { resultLabel.setText("Please enter purpose."); resultLabel.setTextFill(Color.ORANGE); return; }
+            Student s = (Student) u;
+            String body = "I am writing to recommend " + s.getFirstName() + " " + s.getLastName() + " for " + purpose + ".\n\n" +
+                "During their studies, " + s.getFirstName() + " has demonstrated exceptional dedication. " +
+                "Their current GPA is " + String.format("%.2f", s.getGPA()) + "/4.0.\n\n" +
+                "I highly recommend " + s.getFirstName() + " without reservation.";
+            RecommendationLetter letter = new RecommendationLetter(teacher, s, body, purpose);
+            DataStore.getInstance().addLetter(letter);
+            preview.setText(letter.toString());
+            resultLabel.setText("Letter saved!");
+            resultLabel.setTextFill(Color.web("#27ae60"));
+        });
+
+        form.getChildren().addAll(new Label("Student Email:"), emailField, new Label("Purpose:"), purposeField, writeBtn, resultLabel);
+        content.getChildren().addAll(form, preview);
+        setContent(content);
+    }
+
+    private void showNews() {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("University News"));
+        VBox list = new VBox(8);
+        DataStore.getInstance().getNews().forEach(n -> {
+            VBox card = new VBox(4);
+            card.setPadding(new Insets(12));
+            String border = n.isPinned() ? "#f39c12" : "#4a90d9";
+            card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: " + border + "; -fx-border-width: 0 0 0 4;");
+            Label title = new Label((n.isPinned() ? "[PINNED] " : "") + n.getTitle());
+            title.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+            Label body = new Label(n.getContent());
+            body.setWrapText(true);
+            card.getChildren().addAll(title, body);
+            list.getChildren().add(card);
+        });
+        content.getChildren().add(list.getChildren().isEmpty() ? new Label("No news.") : list);
+        setContent(content);
+    }
+
+    private void showSendMessage() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Send Message to Employee"));
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        TextField toField = new TextField();
+        toField.setPromptText("Recipient email");
+        toField.setPrefWidth(300);
+
+        TextArea msgArea = new TextArea();
+        msgArea.setPromptText("Message...");
+        msgArea.setPrefRowCount(5);
+
+        Label resultLabel = new Label("");
+
+        Button sendBtn = new Button("Send");
+        sendBtn.setStyle("-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        sendBtn.setOnAction(e -> {
+            User receiver = DataStore.getInstance().findUserByEmail(toField.getText().trim());
+            if (!(receiver instanceof models.Employee)) { resultLabel.setText("Employee not found!"); resultLabel.setTextFill(Color.RED); return; }
+            String msg = msgArea.getText().trim();
+            if (msg.isEmpty()) { resultLabel.setText("Message cannot be empty."); resultLabel.setTextFill(Color.ORANGE); return; }
+            new EmployeeMessageController().sendEmployeeMessage(teacher, receiver, msg);
+            resultLabel.setText("Message sent!");
+            resultLabel.setTextFill(Color.web("#27ae60"));
+            toField.clear(); msgArea.clear();
+        });
+
+        form.getChildren().addAll(new Label("To:"), toField, new Label("Message:"), msgArea, sendBtn, resultLabel);
         content.getChildren().add(form);
         setContent(content);
     }

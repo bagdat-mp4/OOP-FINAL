@@ -73,10 +73,13 @@ public class StudentDashboard extends BaseDashboard {
         Button myCoursesBtn = createMenuButton("My Courses", "");
         Button transcriptBtn = createMenuButton("Transcript", "");
         Button organizationsBtn = createMenuButton("My Organizations", "");
-        Button newsBtn       = createMenuButton("News", "");
+        Button newsBtn        = createMenuButton("News", "");
+        Button scheduleBtn    = createMenuButton("My Schedule", "");
+        Button lettersBtn     = createMenuButton("Rec. Letters", "");
+        Button rateBtn        = createMenuButton("Rate Teacher", "");
         Button techSupportBtn = createMenuButton("Tech Support", "");
 
-        sidebar.getChildren().addAll(userInfo, sep, dashBtn, coursesBtn, myCoursesBtn, transcriptBtn, organizationsBtn, newsBtn, techSupportBtn);
+        sidebar.getChildren().addAll(userInfo, sep, dashBtn, coursesBtn, myCoursesBtn, transcriptBtn, organizationsBtn, newsBtn, scheduleBtn, lettersBtn, rateBtn, techSupportBtn);
 
         if (core.DataStore.getInstance().isResearcher(student)) {
             Button researchBtn = createMenuButton("Researcher Mode", "");
@@ -96,6 +99,9 @@ public class StudentDashboard extends BaseDashboard {
         transcriptBtn.setOnAction(e -> showTranscript());
         organizationsBtn.setOnAction(e -> showMyOrganizations());
         newsBtn.setOnAction(e -> showNews());
+        scheduleBtn.setOnAction(e -> showSchedule());
+        lettersBtn.setOnAction(e -> showRecommendationLetters());
+        rateBtn.setOnAction(e -> showRateTeacher());
         techSupportBtn.setOnAction(e -> showTechSupportForm());
 
         Scene scene = new Scene(root, 1100, 700);
@@ -429,6 +435,121 @@ public class StudentDashboard extends BaseDashboard {
 
         card.getChildren().addAll(titleLabel, topicLabel, contentLabel);
         return card;
+    }
+
+    protected void showSchedule() {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("My Weekly Schedule"));
+        controllers.ScheduleController sc = new controllers.ScheduleController();
+        java.util.List<models.Schedule> schedules = sc.getScheduleForStudent(student);
+        if (schedules.isEmpty()) {
+            Label empty = new Label("No schedule yet.");
+            empty.setTextFill(Color.web("#999999"));
+            content.getChildren().add(empty);
+        } else {
+            String[] days = {"Monday","Tuesday","Wednesday","Thursday","Friday"};
+            for (String day : days) {
+                VBox dayBox = new VBox(5);
+                Label dayLabel = new Label(day);
+                dayLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+                dayLabel.setTextFill(Color.web("#1a1a2e"));
+                dayBox.getChildren().add(dayLabel);
+                boolean any = false;
+                for (models.Schedule s : schedules) {
+                    if (s.getDayOfWeek().equals(day)) {
+                        any = true;
+                        Label slot = new Label("  " + s.getTimeSlot() + "  |  " + s.getCourse().getCourseCode() + " - " + s.getCourse().getName() + "  |  Room " + s.getRoom().getRoomNumber() + "  |  " + s.getLessonType());
+                        slot.setTextFill(Color.web("#444444"));
+                        dayBox.getChildren().add(slot);
+                    }
+                }
+                if (any) content.getChildren().add(dayBox);
+            }
+        }
+        setContent(content);
+    }
+
+    protected void showRecommendationLetters() {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("My Recommendation Letters"));
+        VBox list = new VBox(10);
+        boolean found = false;
+        for (models.RecommendationLetter l : DataStore.getInstance().getLetters()) {
+            if (l.getStudent().equals(student)) {
+                found = true;
+                VBox card = new VBox(6);
+                card.setPadding(new Insets(15));
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);");
+                Label from = new Label("From: " + l.getAuthor().getFirstName() + " " + l.getAuthor().getLastName() + " (" + l.getAuthor().getTitle() + ")");
+                from.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+                from.setTextFill(Color.web("#4a90d9"));
+                Label purpose = new Label("Purpose: " + l.getPurpose());
+                purpose.setTextFill(Color.web("#666666"));
+                Label body = new Label(l.getContent());
+                body.setWrapText(true);
+                card.getChildren().addAll(from, purpose, body);
+                list.getChildren().add(card);
+            }
+        }
+        if (!found) {
+            Label empty = new Label("No recommendation letters yet.");
+            empty.setTextFill(Color.web("#999999"));
+            list.getChildren().add(empty);
+        }
+        content.getChildren().add(list);
+        setContent(content);
+    }
+
+    protected void showRateTeacher() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Rate Teacher"));
+
+        java.util.List<Course> enrolled = controller.getEnrolledCourses(student);
+        if (enrolled.isEmpty()) {
+            Label empty = new Label("You are not enrolled in any courses.");
+            empty.setTextFill(Color.web("#999999"));
+            content.getChildren().add(empty);
+            setContent(content);
+            return;
+        }
+
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(20));
+        form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        javafx.scene.control.ComboBox<Course> courseCombo = new javafx.scene.control.ComboBox<>();
+        courseCombo.setItems(FXCollections.observableArrayList(enrolled));
+        courseCombo.setPromptText("Select course");
+        courseCombo.setPrefWidth(300);
+        courseCombo.setConverter(new javafx.util.StringConverter<Course>() {
+            @Override public String toString(Course c) { return c == null ? "" : c.getCourseCode() + " — " + c.getName(); }
+            @Override public Course fromString(String s) { return null; }
+        });
+
+        javafx.scene.control.ComboBox<Integer> ratingCombo = new javafx.scene.control.ComboBox<>();
+        ratingCombo.setItems(FXCollections.observableArrayList(1,2,3,4,5));
+        ratingCombo.setPromptText("Rating (1-5)");
+
+        Label resultLabel = new Label("");
+
+        Button rateBtn = new Button("Submit Rating");
+        rateBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;");
+        rateBtn.setOnAction(e -> {
+            Course c = courseCombo.getValue();
+            Integer rating = ratingCombo.getValue();
+            if (c == null || rating == null) { resultLabel.setText("Select course and rating."); resultLabel.setTextFill(Color.ORANGE); return; }
+            if (c.getLectureInstructors().isEmpty()) { resultLabel.setText("No teacher assigned to this course."); resultLabel.setTextFill(Color.RED); return; }
+            controller.rateTeacher(c.getLectureInstructors().get(0), rating);
+            resultLabel.setText("Rating submitted!");
+            resultLabel.setTextFill(Color.web("#27ae60"));
+        });
+
+        form.getChildren().addAll(new Label("Course:"), courseCombo, new Label("Rating:"), ratingCombo, rateBtn, resultLabel);
+        content.getChildren().add(form);
+        setContent(content);
     }
 
     protected void showAlert(String title, String message, Alert.AlertType type) {

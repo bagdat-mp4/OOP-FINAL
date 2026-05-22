@@ -1,6 +1,7 @@
 package gui;
 
 import controllers.AdminController;
+import controllers.SearchController;
 import core.DataStore;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -30,6 +31,11 @@ import models.Teacher;
 import models.TechSupportSpecialist;
 import models.User;
 
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import models.Course;
+import models.ResearchPaper;
 import java.util.List;
 
 
@@ -37,6 +43,7 @@ public class AdminDashboard extends BaseDashboard {
 
     private final Admin admin;
     private final AdminController controller = new AdminController();
+    private final SearchController searchController = new SearchController();
 
     public AdminDashboard(Stage stage, Admin admin) {
         super(stage, admin);
@@ -67,9 +74,10 @@ public class AdminDashboard extends BaseDashboard {
         Button logsBtn = createMenuButton("System Logs", "");
         Button createUserBtn = createMenuButton("Create User", "");
         Button setPassBtn     = createMenuButton("Set Password", "");
+        Button searchBtn      = createMenuButton("Advanced Search", "");
         Button techSupportBtn = createMenuButton("Tech Support", "");
 
-        sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, usersBtn, logsBtn, createUserBtn, setPassBtn, techSupportBtn);
+        sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, usersBtn, logsBtn, createUserBtn, setPassBtn, searchBtn, techSupportBtn);
 
         if (core.DataStore.getInstance().isResearcher(admin)) {
             Button researchBtn = createMenuButton("Researcher Mode", "");
@@ -88,6 +96,7 @@ public class AdminDashboard extends BaseDashboard {
         logsBtn.setOnAction(e -> showSystemLogs());
         createUserBtn.setOnAction(e -> showCreateUser());
         setPassBtn.setOnAction(e -> showSetPassword());
+        searchBtn.setOnAction(e -> showAdvancedSearch());
         techSupportBtn.setOnAction(e -> showTechSupportForm());
 
         Scene scene = new Scene(root, 1100, 700);
@@ -347,6 +356,158 @@ public class AdminDashboard extends BaseDashboard {
 
         content.getChildren().add(form);
         setContent(content);
+    }
+
+    private void showAdvancedSearch() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+        content.getChildren().add(createSectionTitle("Advanced Search"));
+
+        VBox searchBox = new VBox(12);
+        searchBox.setPadding(new Insets(20));
+        searchBox.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        TextField patternField = new TextField();
+        patternField.setPromptText("Regex pattern, e.g. aibek|ainur or ^A");
+        patternField.setPrefWidth(500);
+        patternField.setStyle(
+            "-fx-padding: 10; -fx-border-color: #ddd; -fx-border-radius: 8;" +
+            "-fx-background-radius: 8; -fx-font-size: 14;"
+        );
+
+        ToggleGroup group = new ToggleGroup();
+        RadioButton usersRb   = new RadioButton("Users");
+        RadioButton coursesRb = new RadioButton("Courses");
+        RadioButton papersRb  = new RadioButton("Research Papers");
+        usersRb.setToggleGroup(group);
+        coursesRb.setToggleGroup(group);
+        papersRb.setToggleGroup(group);
+        usersRb.setSelected(true);
+        usersRb.setFont(Font.font("Arial", 13));
+        coursesRb.setFont(Font.font("Arial", 13));
+        papersRb.setFont(Font.font("Arial", 13));
+
+        HBox radioRow = new HBox(20);
+        radioRow.getChildren().addAll(usersRb, coursesRb, papersRb);
+
+        Label errorLabel = new Label("");
+        errorLabel.setTextFill(Color.RED);
+
+        Button searchBtn = new Button("Search");
+        searchBtn.setStyle(
+            "-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-font-size: 14;" +
+            "-fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 30;"
+        );
+
+        VBox resultsBox = new VBox(10);
+
+        searchBtn.setOnAction(e -> {
+            String pattern = patternField.getText().trim();
+            if (pattern.isEmpty()) {
+                errorLabel.setText("Please enter a pattern.");
+                return;
+            }
+            errorLabel.setText("");
+            resultsBox.getChildren().clear();
+
+            if (usersRb.isSelected()) {
+                List<User> results = searchController.searchUsersByRegex(pattern);
+                if (results.isEmpty()) {
+                    resultsBox.getChildren().add(noResults());
+                } else {
+                    TableView<User> table = new TableView<>();
+                    table.setPrefHeight(350);
+                    TableColumn<User, String> nameCol = new TableColumn<>("Name");
+                    nameCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getFirstName() + " " + d.getValue().getLastName()));
+                    nameCol.setPrefWidth(200);
+                    TableColumn<User, String> emailCol = new TableColumn<>("Email");
+                    emailCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getEmail()));
+                    emailCol.setPrefWidth(250);
+                    TableColumn<User, String> roleCol = new TableColumn<>("Role");
+                    roleCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        resolveRole(d.getValue())));
+                    roleCol.setPrefWidth(150);
+                    table.getColumns().addAll(nameCol, emailCol, roleCol);
+                    table.setItems(javafx.collections.FXCollections.observableArrayList(results));
+                    resultsBox.getChildren().addAll(
+                        new Label("Found: " + results.size() + " user(s)"), table);
+                }
+
+            } else if (coursesRb.isSelected()) {
+                List<Course> results = searchController.searchCoursesByRegex(pattern);
+                if (results.isEmpty()) {
+                    resultsBox.getChildren().add(noResults());
+                } else {
+                    TableView<Course> table = new TableView<>();
+                    table.setPrefHeight(350);
+                    TableColumn<Course, String> codeCol = new TableColumn<>("Code");
+                    codeCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getCourseCode()));
+                    codeCol.setPrefWidth(100);
+                    TableColumn<Course, String> nameCol = new TableColumn<>("Name");
+                    nameCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getName()));
+                    nameCol.setPrefWidth(280);
+                    TableColumn<Course, String> typeCol = new TableColumn<>("Type");
+                    typeCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getType().toString()));
+                    typeCol.setPrefWidth(130);
+                    TableColumn<Course, Integer> creditsCol = new TableColumn<>("Credits");
+                    creditsCol.setCellValueFactory(d -> new javafx.beans.property.SimpleIntegerProperty(
+                        d.getValue().getCredits()).asObject());
+                    creditsCol.setPrefWidth(80);
+                    table.getColumns().addAll(codeCol, nameCol, typeCol, creditsCol);
+                    table.setItems(javafx.collections.FXCollections.observableArrayList(results));
+                    resultsBox.getChildren().addAll(
+                        new Label("Found: " + results.size() + " course(s)"), table);
+                }
+
+            } else {
+                List<ResearchPaper> results = searchController.searchPapersByRegex(pattern);
+                if (results.isEmpty()) {
+                    resultsBox.getChildren().add(noResults());
+                } else {
+                    TableView<ResearchPaper> table = new TableView<>();
+                    table.setPrefHeight(350);
+                    TableColumn<ResearchPaper, String> titleCol = new TableColumn<>("Title");
+                    titleCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getTitle()));
+                    titleCol.setPrefWidth(280);
+                    TableColumn<ResearchPaper, String> journalCol = new TableColumn<>("Journal");
+                    journalCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                        d.getValue().getJournal()));
+                    journalCol.setPrefWidth(200);
+                    TableColumn<ResearchPaper, Integer> citCol = new TableColumn<>("Citations");
+                    citCol.setCellValueFactory(d -> new javafx.beans.property.SimpleIntegerProperty(
+                        d.getValue().getCitations()).asObject());
+                    citCol.setPrefWidth(90);
+                    table.getColumns().addAll(titleCol, journalCol, citCol);
+                    table.setItems(javafx.collections.FXCollections.observableArrayList(results));
+                    resultsBox.getChildren().addAll(
+                        new Label("Found: " + results.size() + " paper(s)"), table);
+                }
+            }
+        });
+
+        patternField.setOnAction(e -> searchBtn.fire());
+
+        searchBox.getChildren().addAll(
+            new Label("Search in:"), radioRow,
+            new Label("Pattern:"), patternField,
+            searchBtn, errorLabel
+        );
+
+        content.getChildren().addAll(searchBox, resultsBox);
+        setContent(content);
+    }
+
+    private Label noResults() {
+        Label l = new Label("No results found.");
+        l.setTextFill(Color.web("#999999"));
+        l.setFont(Font.font("Arial", 14));
+        return l;
     }
 
     private String resolveRole(User u) {

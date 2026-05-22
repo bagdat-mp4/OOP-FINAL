@@ -185,7 +185,26 @@ public class TechSupportDashboard extends BaseDashboard {
             }
         });
 
-        table.getColumns().addAll(userCol, descCol, statusCol, acceptCol, rejectCol);
+        TableColumn<TechSupportRequest, Void> doneCol = new TableColumn<>("Done");
+        doneCol.setPrefWidth(100);
+        doneCol.setCellFactory(col -> new TableCell<>() {
+            final Button btn = new Button("Done");
+            {
+                btn.setStyle("-fx-background-color: #4a90d9; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand;");
+                btn.setOnAction(e -> {
+                    controller.changeOrderStatus(getTableView().getItems().get(getIndex()), RequestStatus.DONE);
+                    showRequests();
+                });
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) { setGraphic(null); return; }
+                TechSupportRequest r = getTableView().getItems().get(getIndex());
+                setGraphic(r.getStatus() == RequestStatus.ACCEPTED ? btn : null);
+            }
+        });
+
+        table.getColumns().addAll(userCol, descCol, statusCol, acceptCol, rejectCol, doneCol);
         table.setItems(FXCollections.observableArrayList(DataStore.getInstance().getTechSupportRequests()));
         table.setPrefHeight(400);
 
