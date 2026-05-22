@@ -3,9 +3,7 @@ package utils;
 import models.*;
 import enums.*;
 
-/**
- * Factory class for creating users
- */
+
 public class UserFactory {
 
     public static User createUser(UserType type, long id, String firstName, String lastName, String email, String password) {

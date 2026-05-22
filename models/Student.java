@@ -3,9 +3,7 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * Student class representing undergraduate students
- */
+
 public class Student extends User implements Serializable {
 
     private int yearOfStudy;
@@ -15,9 +13,7 @@ public class Student extends User implements Serializable {
     private Map<Course, Mark> transcript;
     private List<StudentOrganization> organizations;
 
-    /**
-     * Default constructor
-     */
+    
     public Student() {
         super();
         this.currentCredits = 0;
@@ -26,9 +22,7 @@ public class Student extends User implements Serializable {
         this.organizations = new ArrayList<>();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public Student(long id, String firstName, String lastName, String email, String password, String major, int yearOfStudy) {
         super(id, firstName, lastName, email, password);
         this.major = major;

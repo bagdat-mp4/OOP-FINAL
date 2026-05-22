@@ -3,9 +3,7 @@ package views;
 import controllers.AdminController;
 import models.Admin;
 
-/**
- * Admin view with console menu
- */
+
 public class AdminView extends BaseView {
 
     private Admin admin;

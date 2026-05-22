@@ -5,9 +5,7 @@ import models.*;
 import core.DataStore;
 import enums.*;
 
-/**
- * Manager view with console menu
- */
+
 public class ManagerView extends BaseView {
 
     private Manager manager;

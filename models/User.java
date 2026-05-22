@@ -56,7 +56,7 @@ public abstract class User implements Subscriber, Serializable {
         System.out.println("Notification: New paper in journal " + journalName + ": " + paper.getTitle());
     }
 
-    // Getters and setters
+    
     public long getId() {
         return id;
     }

@@ -16,9 +16,7 @@ import enums.*;
 
 import java.util.*;
 
-/**
- * Tech Support Dashboard with request management
- */
+
 public class TechSupportDashboard extends BaseDashboard {
     private TechSupportSpecialist techSupport;
     private TechSupportController controller = new TechSupportController();
@@ -46,9 +44,9 @@ public class TechSupportDashboard extends BaseDashboard {
         roleLabel.setTextFill(Color.web("#aaaaaa"));
         userInfo.getChildren().addAll(nameLabel, roleLabel);
 
-        Button dashBtn = createMenuButton("Dashboard", "🏠");
-        Button requestsBtn = createMenuButton("View Requests", "📋");
-        Button usersBtn = createMenuButton("All Users", "👥");
+        Button dashBtn = createMenuButton("Dashboard", "");
+        Button requestsBtn = createMenuButton("View Requests", "");
+        Button usersBtn = createMenuButton("All Users", "");
 
         sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, requestsBtn, usersBtn);
         root.setLeft(sidebar);
@@ -91,7 +89,7 @@ public class TechSupportDashboard extends BaseDashboard {
     private void showRequests() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📋 Tech Support Requests"));
+        content.getChildren().add(createSectionTitle(" Tech Support Requests"));
 
         TableView<TechSupportRequest> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");
@@ -118,7 +116,7 @@ public class TechSupportDashboard extends BaseDashboard {
         TableColumn<TechSupportRequest, Void> acceptCol = new TableColumn<>("Accept");
         acceptCol.setPrefWidth(100);
         acceptCol.setCellFactory(col -> new TableCell<>() {
-            final Button btn = new Button("✅ Accept");
+            final Button btn = new Button(" Accept");
             {
                 btn.setStyle(
                     "-fx-background-color: #27ae60;" +
@@ -147,7 +145,7 @@ public class TechSupportDashboard extends BaseDashboard {
         TableColumn<TechSupportRequest, Void> rejectCol = new TableColumn<>("Reject");
         rejectCol.setPrefWidth(100);
         rejectCol.setCellFactory(col -> new TableCell<>() {
-            final Button btn = new Button("❌ Reject");
+            final Button btn = new Button(" Reject");
             {
                 btn.setStyle(
                     "-fx-background-color: #e74c3c;" +
@@ -184,7 +182,7 @@ public class TechSupportDashboard extends BaseDashboard {
     private void showAllUsers() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("👥 All Users"));
+        content.getChildren().add(createSectionTitle(" All Users"));
 
         TableView<User> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");

@@ -16,9 +16,7 @@ import enums.*;
 
 import java.util.*;
 
-/**
- * Admin Dashboard with user management and system logs
- */
+
 public class AdminDashboard extends BaseDashboard {
     private Admin admin;
     private AdminController controller = new AdminController();
@@ -42,14 +40,14 @@ public class AdminDashboard extends BaseDashboard {
         Label nameLabel = new Label(admin.getFirstName() + " " + admin.getLastName());
         nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         nameLabel.setTextFill(Color.WHITE);
-        Label roleLabel = new Label("👑 Administrator");
+        Label roleLabel = new Label(" Administrator");
         roleLabel.setTextFill(Color.web("#aaaaaa"));
         userInfo.getChildren().addAll(nameLabel, roleLabel);
 
-        Button dashBtn = createMenuButton("Dashboard", "🏠");
-        Button usersBtn = createMenuButton("Manage Users", "👥");
-        Button logsBtn = createMenuButton("System Logs", "📋");
-        Button createUserBtn = createMenuButton("Create User", "➕");
+        Button dashBtn = createMenuButton("Dashboard", "");
+        Button usersBtn = createMenuButton("Manage Users", "");
+        Button logsBtn = createMenuButton("System Logs", "");
+        Button createUserBtn = createMenuButton("Create User", "");
 
         sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, usersBtn, logsBtn, createUserBtn);
         root.setLeft(sidebar);
@@ -71,7 +69,7 @@ public class AdminDashboard extends BaseDashboard {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
 
-        Label title = createSectionTitle("Welcome, Admin " + admin.getFirstName() + "! 👑");
+        Label title = createSectionTitle("Welcome, Admin " + admin.getFirstName() + "! ");
 
         HBox cards = new HBox(15);
         List<User> users = DataStore.getInstance().getUsers();
@@ -93,7 +91,7 @@ public class AdminDashboard extends BaseDashboard {
     private void showManageUsers() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("👥 Manage Users"));
+        content.getChildren().add(createSectionTitle(" Manage Users"));
 
         TableView<User> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");
@@ -166,7 +164,7 @@ public class AdminDashboard extends BaseDashboard {
     private void showSystemLogs() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📋 System Logs"));
+        content.getChildren().add(createSectionTitle(" System Logs"));
 
         TableView<String> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");
@@ -186,7 +184,7 @@ public class AdminDashboard extends BaseDashboard {
     private void showCreateUser() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("➕ Create New User"));
+        content.getChildren().add(createSectionTitle(" Create New User"));
 
         GridPane form = new GridPane();
         form.setHgap(15);
@@ -215,7 +213,7 @@ public class AdminDashboard extends BaseDashboard {
 
         Label resultLabel = new Label("");
 
-        Button createBtn = new Button("✅ Create User");
+        Button createBtn = new Button(" Create User");
         createBtn.setStyle(
             "-fx-background-color: #27ae60;" +
             "-fx-text-fill: white;" +
@@ -232,21 +230,21 @@ public class AdminDashboard extends BaseDashboard {
             String role = roleCombo.getValue();
 
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || role == null) {
-                resultLabel.setText("⚠ Please fill all fields");
+                resultLabel.setText(" Please fill all fields");
                 resultLabel.setTextFill(Color.ORANGE);
                 return;
             }
 
             try {
                 controller.createUser(email, firstName, lastName, role);
-                resultLabel.setText("✅ User created successfully! Default password: password123");
+                resultLabel.setText(" User created successfully! Default password: password123");
                 resultLabel.setTextFill(Color.web("#27ae60"));
                 firstNameField.clear();
                 lastNameField.clear();
                 emailField.clear();
                 roleCombo.setValue(null);
             } catch (Exception ex) {
-                resultLabel.setText("❌ Error: " + ex.getMessage());
+                resultLabel.setText(" Error: " + ex.getMessage());
                 resultLabel.setTextFill(Color.RED);
             }
         });

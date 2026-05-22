@@ -1,17 +1,13 @@
 package controllers;
 
-import core.DataStore;
-import models.*;
+import models.GraduateStudent;
 
-/**
- * Graduate student controller
- */
-public class GraduateStudentController extends controllers.StudentController {
+public class GraduateStudentController extends StudentController {
 
     public GraduateStudentController() {
     }
 
-    public boolean setDissertationTheme(models.GraduateStudent student, String theme) {
+    public boolean setDissertationTheme(GraduateStudent student, String theme) {
         System.out.println("Dissertation theme set for " + student.getFirstName() + ": " + theme);
         return true;
     }

@@ -1,34 +1,37 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
+import models.User;
+import models.Employee;
+import models.Message;
+import models.TechSupportRequest;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
-/**
- * Employee message controller
- */
 public class EmployeeMessageController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public EmployeeMessageController() {
     }
 
-    public boolean sendEmployeeMessage(models.User sender, models.User receiver, String content) {
-        if (!(sender instanceof models.Employee) || !(receiver instanceof models.Employee)) return false;
-        models.Message msg = new models.Message((models.Employee) sender, (models.Employee) receiver, content);
-        ((models.Employee) receiver).getInbox().add(msg);
-        DataStore.getInstance().addMessage(msg);
-        DataStore.getInstance().log(sender, "Sent message to " + receiver.getFirstName());
+    public boolean sendEmployeeMessage(User sender, User receiver, String content) {
+        if (!(sender instanceof Employee) || !(receiver instanceof Employee)) return false;
+        Message msg = new Message((Employee) sender, (Employee) receiver, content);
+        ((Employee) receiver).getInbox().add(msg);
+        ds.addMessage(msg);
+        ds.log(sender, "Sent message to " + receiver.getFirstName());
         return true;
     }
 
-    public List<models.Message> getInbox(models.User user) {
-        if (!(user instanceof models.Employee)) return new ArrayList<>();
-        return ((models.Employee) user).getInbox();
+    public List<Message> getInbox(User user) {
+        if (!(user instanceof Employee)) return new ArrayList<>();
+        return ((Employee) user).getInbox();
     }
 
-    public void callSupport(models.TechSupportRequest request) {
-        DataStore.getInstance().addTechRequest(request);
+    public void callSupport(TechSupportRequest request) {
+        ds.addTechRequest(request);
     }
 
 }

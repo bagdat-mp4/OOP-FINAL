@@ -5,9 +5,7 @@ import models.*;
 import enums.*;
 import core.DataStore;
 
-/**
- * Teacher view with console menu
- */
+
 public class TeacherView extends BaseView {
 
     private Teacher teacher;

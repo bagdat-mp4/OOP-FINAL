@@ -5,9 +5,7 @@ import models.*;
 import core.DataStore;
 import exceptions.*;
 
-/**
- * Graduate student view extending student view
- */
+
 public class GraduateStudentView extends StudentView {
 
     private GraduateStudent gradStudent;

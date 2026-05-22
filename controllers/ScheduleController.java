@@ -1,15 +1,24 @@
 package controllers;
 
-import models.*;
-import enums.*;
+import models.Course;
+import models.Teacher;
+import models.Student;
+import models.Schedule;
+import models.Room;
+import enums.LessonType;
+import enums.RoomType;
 import core.DataStore;
-import java.util.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 public class ScheduleController {
 
-    public Schedule generateSchedule(Course course, Teacher teacher, LessonType type) {
-        DataStore ds = DataStore.getInstance();
+    private final DataStore ds = DataStore.getInstance();
 
+    public Schedule generateSchedule(Course course, Teacher teacher, LessonType type) {
         Room availableRoom = null;
         for (Room room : ds.getRooms()) {
             if (room.isAvailable() &&
@@ -57,7 +66,7 @@ public class ScheduleController {
 
     public List<Schedule> getScheduleForStudent(Student student) {
         List<Schedule> result = new ArrayList<>();
-        for (Schedule s : DataStore.getInstance().getSchedules()) {
+        for (Schedule s : ds.getSchedules()) {
             if (s.getCourse().getEnrolledStudents().contains(student)) {
                 result.add(s);
             }
@@ -67,7 +76,7 @@ public class ScheduleController {
 
     public List<Schedule> getScheduleForTeacher(Teacher teacher) {
         List<Schedule> result = new ArrayList<>();
-        for (Schedule s : DataStore.getInstance().getSchedules()) {
+        for (Schedule s : ds.getSchedules()) {
             if (s.getTeacher().equals(teacher)) {
                 result.add(s);
             }
@@ -83,7 +92,7 @@ public class ScheduleController {
             for (Schedule s : schedules) {
                 if (s.getDayOfWeek().equals(day)) {
                     if (!hasClass) {
-                        sb.append("\n📅 ").append(day).append(":\n");
+                        sb.append("\n ").append(day).append(":\n");
                         hasClass = true;
                     }
                     sb.append("  ").append(s.getTimeSlot())

@@ -5,25 +5,19 @@ import exceptions.LowHIndexException;
 import java.io.*;
 import java.util.*;
 
-/**
- * Graduate student class
- */
+
 public class GraduateStudent extends Student {
 
     private Researcher supervisor;
     private List<ResearchPaper> diplomaProjects;
 
-    /**
-     * Default constructor
-     */
+    
     public GraduateStudent() {
         super();
         this.diplomaProjects = new ArrayList<>();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public GraduateStudent(long id, String firstName, String lastName, String email, String password, String major, int yearOfStudy) {
         super(id, firstName, lastName, email, password, major, yearOfStudy);
         this.diplomaProjects = new ArrayList<>();

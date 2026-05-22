@@ -6,21 +6,15 @@ import enums.RequestStatus;
 import java.io.*;
 import java.util.*;
 
-/**
- * Tech support specialist class
- */
+
 public class TechSupportSpecialist extends models.Employee {
 
-    /**
-     * Default constructor
-     */
+    
     public TechSupportSpecialist() {
         super();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public TechSupportSpecialist(long id, String firstName, String lastName, String email, String password, double salary) {
         super(id, firstName, lastName, email, password, salary);
     }

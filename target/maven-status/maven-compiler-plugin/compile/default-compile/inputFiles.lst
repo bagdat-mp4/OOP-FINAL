@@ -3,6 +3,7 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\RequestStatus.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\TechSupportSpecialist.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\comparators\DateComparator.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\ResearcherTest.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\ManagerTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Course.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Manager.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\StudentOrganization.java
@@ -20,6 +21,7 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\gui\TeacherDashboard.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\TechSupportRequest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\GraduateStudentController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\TeacherTitle.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Room.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\MarkTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\TechSupportController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\exceptions\InvalidCredentialsException.java
@@ -34,15 +36,23 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\gui\AdminDashboard.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\StudentTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\Language.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\views\TechSupportView.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\AdminTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Researcher.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\LessonType.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Employee.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Attendance.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\ScheduleController.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\ScheduleTest.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\TeacherTest.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\RecommendationLetterTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Message.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\UserAction.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\ResearcherController.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\RecommendationLetter.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Lesson.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\views\TeacherView.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\AuthTest.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\SearchController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\core\DataStore.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\RunAllTests.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\views\GraduateStudentView.java
@@ -51,8 +61,11 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\ManagerType.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\TeacherController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\views\StudentView.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\comparators\PaperLengthComporator.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\AttendanceTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\GraduateStudent.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\RoomType.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\UserType.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Schedule.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\views\ResearcherView.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\EmployeeMessageController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\User.java
@@ -60,6 +73,7 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\GlobalMessage.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\StudentController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\MainApp.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Mark.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\SearchTest.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\enums\UrgencyLevel.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Teacher.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\utils\UserFactory.java
@@ -72,3 +86,4 @@ C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\controllers\ManagerController.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\exceptions\NotAResearcherException.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\gui\TechSupportDashboard.java
 C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\models\Admin.java
+C:\Users\Bagdat\OneDrive\Desktop\finalooooooo\test\CourseTest.java

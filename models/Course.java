@@ -5,9 +5,7 @@ import enums.CourseType;
 import java.io.*;
 import java.util.*;
 
-/**
- * Course class representing academic courses
- */
+
 public class Course implements Serializable {
 
     private long id;
@@ -20,18 +18,14 @@ public class Course implements Serializable {
     private List<Teacher> practiceInstructors;
     private List<Student> enrolledStudents;
 
-    /**
-     * Default constructor
-     */
+    
     public Course() {
         this.lectureInstructors = new ArrayList<>();
         this.practiceInstructors = new ArrayList<>();
         this.enrolledStudents = new ArrayList<>();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public Course(long id, String courseCode, String name, int credits, CourseType type, int targetYear) {
         this.id = id;
         this.courseCode = courseCode;

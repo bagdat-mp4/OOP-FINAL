@@ -2,9 +2,7 @@ package views;
 
 import java.util.Scanner;
 
-/**
- * Base view with common UI utilities
- */
+
 public abstract class BaseView {
 
     public static String currentLanguage = "EN";

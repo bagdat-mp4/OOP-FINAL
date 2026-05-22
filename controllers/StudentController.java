@@ -1,21 +1,26 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
-import exceptions.*;
+import models.Course;
+import models.Student;
+import models.Mark;
+import models.Teacher;
+import models.StudentOrganization;
+import exceptions.CreditLimitException;
+import exceptions.MaxFailedReachedException;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Student controller
- */
 public class StudentController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public StudentController() {
     }
 
     public List<Course> viewCourses() {
-        return DataStore.getInstance().getCourses();
+        return ds.getCourses();
     }
 
     public boolean registerForCourse(Student student, Course course) throws CreditLimitException, MaxFailedReachedException {
@@ -27,7 +32,7 @@ public class StudentController {
         }
         student.setCurrentCredits(student.getCurrentCredits() + course.getCredits());
         course.addStudent(student);
-        DataStore.getInstance().log(student, "Registered for course: " + course.getName());
+        ds.log(student, "Registered for course: " + course.getName());
         return true;
     }
 

@@ -3,25 +3,19 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * Student organization class
- */
+
 public class StudentOrganization implements Serializable {
 
     private String name;
     private models.Student head;
     private List<models.Student> members;
 
-    /**
-     * Default constructor
-     */
+    
     public StudentOrganization() {
         this.members = new ArrayList<>();
     }
 
-    /**
-     * Constructor with name
-     */
+    
     public StudentOrganization(String name) {
         this.name = name;
         this.members = new ArrayList<>();

@@ -3,31 +3,23 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * Mark class representing course grades
- */
+
 public class Mark implements Serializable {
 
     private double firstAttestation;
     private double secondAttestation;
     private double finalExam;
 
-    /**
-     * Default constructor
-     */
+    
     public Mark() {
     }
 
-    /**
-     * Calculate total score
-     */
+    
     public double getTotal() {
         return firstAttestation * 0.3 + secondAttestation * 0.3 + finalExam * 0.4;
     }
 
-    /**
-     * Get letter grade
-     */
+    
     public String getLetter() {
         double total = getTotal();
         if (total >= 90) return "A";

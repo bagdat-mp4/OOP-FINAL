@@ -10,9 +10,7 @@ import javafx.scene.paint.Color;
 import controllers.AuthController;
 import models.*;
 
-/**
- * Login screen with modern dark theme design
- */
+
 public class LoginScreen {
     private Stage stage;
 
@@ -26,7 +24,7 @@ public class LoginScreen {
         root.setStyle("-fx-background-color: #1a1a2e;");
         root.setPadding(new Insets(0));
 
-        // Card container
+        
         VBox card = new VBox(15);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(40));
@@ -37,8 +35,8 @@ public class LoginScreen {
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);"
         );
 
-        // Title
-        Label title = new Label("🎓 KBTU University");
+        
+        Label title = new Label(" KBTU University");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         title.setTextFill(Color.web("#1a1a2e"));
 
@@ -46,7 +44,7 @@ public class LoginScreen {
         subtitle.setFont(Font.font("Arial", 14));
         subtitle.setTextFill(Color.web("#666666"));
 
-        // Email field
+        
         Label emailLabel = new Label("Email");
         emailLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         TextField emailField = new TextField();
@@ -60,7 +58,7 @@ public class LoginScreen {
         );
         emailField.setPrefWidth(320);
 
-        // Password field
+        
         Label passLabel = new Label("Password");
         passLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         PasswordField passField = new PasswordField();
@@ -68,12 +66,12 @@ public class LoginScreen {
         passField.setStyle(emailField.getStyle());
         passField.setPrefWidth(320);
 
-        // Error label
+        
         Label errorLabel = new Label("");
         errorLabel.setTextFill(Color.RED);
         errorLabel.setFont(Font.font("Arial", 12));
 
-        // Login button
+        
         Button loginBtn = new Button("Login");
         loginBtn.setPrefWidth(320);
         loginBtn.setPrefHeight(45);
@@ -86,7 +84,7 @@ public class LoginScreen {
             "-fx-cursor: hand;"
         );
 
-        // Hover effects
+        
         loginBtn.setOnMouseEntered(e -> loginBtn.setStyle(
             "-fx-background-color: #357abd;" +
             "-fx-text-fill: white;" +
@@ -104,18 +102,18 @@ public class LoginScreen {
             "-fx-cursor: hand;"
         ));
 
-        // Hint for test accounts
+        
         Label hint = new Label("Test: admin@uni.kz / admin123");
         hint.setFont(Font.font("Arial", 11));
         hint.setTextFill(Color.web("#aaaaaa"));
 
-        // Login action
+        
         loginBtn.setOnAction(e -> {
             String email = emailField.getText().trim();
             String password = passField.getText().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                errorLabel.setText("⚠ Please fill all fields");
+                errorLabel.setText(" Please fill all fields");
                 return;
             }
 
@@ -123,17 +121,17 @@ public class LoginScreen {
             User user = auth.login(email, password);
 
             if (user == null) {
-                errorLabel.setText("❌ Invalid email or password");
+                errorLabel.setText(" Invalid email or password");
                 passField.clear();
             } else {
                 openDashboard(user);
             }
         });
 
-        // Enter key support
+        
         passField.setOnAction(e -> loginBtn.fire());
 
-        // Separator
+        
         Separator separator = new Separator();
         separator.setPrefWidth(300);
 
@@ -157,7 +155,7 @@ public class LoginScreen {
     }
 
     private void openDashboard(User user) {
-        // Route to appropriate dashboard based on role
+        
         if (user instanceof Admin) {
             new AdminDashboard(stage, (Admin) user).show();
         } else if (user instanceof GraduateStudent) {

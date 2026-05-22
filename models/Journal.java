@@ -3,26 +3,20 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * Journal class using Observer pattern
- */
+
 public class Journal implements Serializable {
 
     private String name;
     private List<Subscriber> subscribers;
     private List<ResearchPaper> publishedPapers;
 
-    /**
-     * Default constructor
-     */
+    
     public Journal() {
         this.subscribers = new ArrayList<>();
         this.publishedPapers = new ArrayList<>();
     }
 
-    /**
-     * Constructor with name
-     */
+    
     public Journal(String name) {
         this.name = name;
         this.subscribers = new ArrayList<>();

@@ -6,9 +6,7 @@ import core.DataStore;
 import enums.*;
 import java.util.List;
 
-/**
- * Tech support view with console menu
- */
+
 public class TechSupportView extends BaseView {
 
     private TechSupportSpecialist specialist;

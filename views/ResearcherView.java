@@ -8,9 +8,7 @@ import enums.*;
 import exceptions.*;
 import java.util.*;
 
-/**
- * Researcher view for research capabilities
- */
+
 public class ResearcherView extends BaseView {
 
     private User user;

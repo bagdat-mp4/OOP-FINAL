@@ -6,26 +6,20 @@ import exceptions.NotAResearcherException;
 import java.io.*;
 import java.util.*;
 
-/**
- * Research project class
- */
+
 public class ResearchProject implements Serializable {
 
     private String topic;
     private List<models.Researcher> participants;
     private List<models.ResearchPaper> publishedPapers;
 
-    /**
-     * Default constructor
-     */
+    
     public ResearchProject() {
         this.participants = new ArrayList<>();
         this.publishedPapers = new ArrayList<>();
     }
 
-    /**
-     * Constructor with topic
-     */
+    
     public ResearchProject(String topic) {
         this.topic = topic;
         this.participants = new ArrayList<>();

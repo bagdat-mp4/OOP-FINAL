@@ -1,17 +1,25 @@
 package controllers;
 
-import models.*;
+import models.User;
+import models.Course;
+import models.ResearchPaper;
+import models.ResearcherDecorator;
 import core.DataStore;
-import java.util.*;
-import java.util.regex.*;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class SearchController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public List<User> searchUsersByRegex(String pattern) {
         List<User> results = new ArrayList<>();
         try {
             Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-            for (User u : DataStore.getInstance().getUsers()) {
+            for (User u : ds.getUsers()) {
                 String searchStr = u.getFirstName() + " " + u.getLastName() + " " + u.getEmail();
                 if (p.matcher(searchStr).find()) results.add(u);
             }
@@ -25,7 +33,7 @@ public class SearchController {
         List<Course> results = new ArrayList<>();
         try {
             Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-            for (Course c : DataStore.getInstance().getCourses()) {
+            for (Course c : ds.getCourses()) {
                 String searchStr = c.getName() + " " + c.getCourseCode();
                 if (p.matcher(searchStr).find()) results.add(c);
             }
@@ -39,7 +47,7 @@ public class SearchController {
         List<ResearchPaper> results = new ArrayList<>();
         try {
             Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-            for (ResearcherDecorator rd : DataStore.getInstance().getResearcherMap().values()) {
+            for (ResearcherDecorator rd : ds.getResearcherMap().values()) {
                 for (ResearchPaper paper : rd.getPapers()) {
                     String searchStr = paper.getTitle() + " " + paper.getJournal();
                     if (p.matcher(searchStr).find()) results.add(paper);

@@ -35,6 +35,6 @@ public class Attendance implements Serializable {
     @Override
     public String toString() {
         return student.getFirstName() + " | " + course.getCourseCode() +
-               " | " + date + " | " + (present ? "PRESENT ✓" : "ABSENT ✗");
+               " | " + date + " | " + (present ? "PRESENT " : "ABSENT ");
     }
 }

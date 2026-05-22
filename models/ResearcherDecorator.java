@@ -4,26 +4,20 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Decorator class to add researcher capabilities to any User
- */
+
 public class ResearcherDecorator implements Researcher, Serializable {
 
     private User originalUser;
     private List<ResearchPaper> papers;
     private List<ResearchProject> projects;
 
-    /**
-     * Default constructor
-     */
+    
     public ResearcherDecorator() {
         this.papers = new ArrayList<>();
         this.projects = new ArrayList<>();
     }
 
-    /**
-     * Constructor with user
-     */
+    
     public ResearcherDecorator(User user) {
         this.originalUser = user;
         this.papers = new ArrayList<>();

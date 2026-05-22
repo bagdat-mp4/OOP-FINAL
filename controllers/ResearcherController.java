@@ -1,28 +1,32 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
-import exceptions.*;
-import comparators.*;
+import models.User;
+import models.ResearchPaper;
+import models.ResearcherDecorator;
+import models.ResearchProject;
+import models.News;
+import exceptions.NotAResearcherException;
+import comparators.CitationsComparator;
+import comparators.DateComparator;
+import comparators.PaperLengthComporator;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
-/**
- * Researcher controller
- */
 public class ResearcherController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public ResearcherController() {
     }
 
     public boolean addResearchPaper(User author, ResearchPaper paper) {
-        DataStore ds = DataStore.getInstance();
         if (!ds.isResearcher(author)) return false;
         ResearcherDecorator rd = ds.getResearcher(author);
         rd.addPaper(paper);
         paper.addAuthor(rd);
 
-        // Auto-create news for research papers
         News news = new News("New Research Paper Published", "Research",
             author.getFirstName() + " published: " + paper.getTitle());
         ds.addNews(news);
@@ -32,7 +36,7 @@ public class ResearcherController {
 
     public ResearchProject createResearchProject(String topic) {
         ResearchProject p = new ResearchProject(topic);
-        DataStore.getInstance().addResearchProject(p);
+        ds.addResearchProject(p);
         return p;
     }
 
@@ -42,7 +46,6 @@ public class ResearcherController {
     }
 
     public double calculateHIndex(User user) {
-        DataStore ds = DataStore.getInstance();
         if (!ds.isResearcher(user)) return 0;
         return ds.getResearcher(user).calculateHIndex();
     }

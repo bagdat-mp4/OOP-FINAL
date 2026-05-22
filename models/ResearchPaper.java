@@ -6,9 +6,7 @@ import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
-/**
- * Research paper class
- */
+
 public class ResearchPaper implements Serializable {
 
     private String title;
@@ -19,16 +17,12 @@ public class ResearchPaper implements Serializable {
     private Date datePublished;
     private List<Researcher> authors;
 
-    /**
-     * Default constructor
-     */
+    
     public ResearchPaper() {
         this.authors = new ArrayList<>();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public ResearchPaper(String title, String journal, String doi, int pages, Date datePublished) {
         this.title = title;
         this.journal = journal;
@@ -54,7 +48,7 @@ public class ResearchPaper implements Serializable {
         StringBuilder authorsStr = new StringBuilder();
         for (int i = 0; i < authors.size(); i++) {
             if (i > 0) authorsStr.append(", ");
-            // Get original user from researcher decorator
+            
             if (authors.get(i) instanceof ResearcherDecorator) {
                 User u = ((ResearcherDecorator) authors.get(i)).getOriginalUser();
                 authorsStr.append(u.getLastName()).append(" ").append(u.getFirstName().charAt(0)).append(".");

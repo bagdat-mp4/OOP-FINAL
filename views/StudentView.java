@@ -6,9 +6,7 @@ import enums.*;
 import core.DataStore;
 import exceptions.*;
 
-/**
- * Student view with console menu
- */
+
 public class StudentView extends BaseView {
 
     protected Student student;

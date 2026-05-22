@@ -5,25 +5,19 @@ import enums.RequestStatus;
 import java.io.*;
 import java.util.*;
 
-/**
- * Tech support request class
- */
+
 public class TechSupportRequest implements Serializable {
 
     private models.User sender;
     private String issue;
     private RequestStatus status;
 
-    /**
-     * Default constructor
-     */
+    
     public TechSupportRequest() {
         this.status = RequestStatus.NEW;
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public TechSupportRequest(models.User sender, String issue) {
         this.sender = sender;
         this.issue = issue;

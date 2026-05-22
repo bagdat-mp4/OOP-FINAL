@@ -16,9 +16,7 @@ import enums.*;
 
 import java.util.*;
 
-/**
- * Manager Dashboard with course management and academic reports
- */
+
 public class ManagerDashboard extends BaseDashboard {
     private Manager manager;
     private ManagerController controller = new ManagerController();
@@ -42,17 +40,17 @@ public class ManagerDashboard extends BaseDashboard {
         Label nameLabel = new Label(manager.getFirstName() + " " + manager.getLastName());
         nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         nameLabel.setTextFill(Color.WHITE);
-        Label roleLabel = new Label("📊 Manager");
+        Label roleLabel = new Label(" Manager");
         roleLabel.setTextFill(Color.web("#aaaaaa"));
         Label typeLabel = new Label("Type: " + (manager.getManagerType() != null ? manager.getManagerType() : "General"));
         typeLabel.setTextFill(Color.web("#aaaaaa"));
         userInfo.getChildren().addAll(nameLabel, roleLabel, typeLabel);
 
-        Button dashBtn = createMenuButton("Dashboard", "🏠");
+        Button dashBtn = createMenuButton("Dashboard", "");
         Button coursesBtn = createMenuButton("All Courses", "📚");
-        Button studentsBtn = createMenuButton("Student Reports", "📊");
-        Button newsBtn = createMenuButton("Manage News", "📰");
-        Button officialMsgBtn = createMenuButton("Official Message", "📢");
+        Button studentsBtn = createMenuButton("Student Reports", "");
+        Button newsBtn = createMenuButton("Manage News", "");
+        Button officialMsgBtn = createMenuButton("Official Message", "");
 
         sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, coursesBtn, studentsBtn, newsBtn, officialMsgBtn);
         root.setLeft(sidebar);
@@ -75,7 +73,7 @@ public class ManagerDashboard extends BaseDashboard {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
 
-        Label title = createSectionTitle("Welcome, Manager " + manager.getFirstName() + "! 📊");
+        Label title = createSectionTitle("Welcome, Manager " + manager.getFirstName() + "! ");
 
         HBox cards = new HBox(15);
         List<Course> courses = DataStore.getInstance().getCourses();
@@ -144,7 +142,7 @@ public class ManagerDashboard extends BaseDashboard {
     private void showStudentReports() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📊 Student Academic Reports"));
+        content.getChildren().add(createSectionTitle(" Student Academic Reports"));
 
         TableView<Student> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");
@@ -202,9 +200,9 @@ public class ManagerDashboard extends BaseDashboard {
     private void showManageNews() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📰 Manage University News"));
+        content.getChildren().add(createSectionTitle(" Manage University News"));
 
-        // Create news form
+        
         VBox form = new VBox(15);
         form.setPadding(new Insets(20));
         form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
@@ -227,7 +225,7 @@ public class ManagerDashboard extends BaseDashboard {
 
         Label resultLabel = new Label("");
 
-        Button publishBtn = new Button("📤 Publish News");
+        Button publishBtn = new Button(" Publish News");
         publishBtn.setStyle(
             "-fx-background-color: #27ae60;" +
             "-fx-text-fill: white;" +
@@ -243,13 +241,13 @@ public class ManagerDashboard extends BaseDashboard {
             String newsContent = contentArea.getText().trim();
 
             if (title.isEmpty() || topic.isEmpty() || newsContent.isEmpty()) {
-                resultLabel.setText("⚠ Please fill all fields");
+                resultLabel.setText(" Please fill all fields");
                 resultLabel.setTextFill(Color.ORANGE);
                 return;
             }
 
             controller.addNews(title, newsContent, pinnedCheck.isSelected());
-            resultLabel.setText("✅ News published successfully!");
+            resultLabel.setText(" News published successfully!");
             resultLabel.setTextFill(Color.web("#27ae60"));
             titleField.clear();
             topicField.clear();
@@ -265,8 +263,8 @@ public class ManagerDashboard extends BaseDashboard {
             publishBtn, resultLabel
         );
 
-        // Existing news list
-        Label existingTitle = createSectionTitle("📋 Published News");
+        
+        Label existingTitle = createSectionTitle(" Published News");
         VBox newsList = new VBox(10);
         for (News n : DataStore.getInstance().getNews()) {
             HBox item = new HBox(15);
@@ -278,7 +276,7 @@ public class ManagerDashboard extends BaseDashboard {
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);"
             );
             if (n.getIsPinned()) {
-                Label pin = new Label("📌");
+                Label pin = new Label("");
                 item.getChildren().add(pin);
             }
             Label newsLabel = new Label("[" + n.getTopic() + "] " + n.getTitle());
@@ -294,7 +292,7 @@ public class ManagerDashboard extends BaseDashboard {
     private void showOfficialMessage() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📢 Send Official Message"));
+        content.getChildren().add(createSectionTitle(" Send Official Message"));
 
         VBox form = new VBox(15);
         form.setPadding(new Insets(20));
@@ -307,7 +305,7 @@ public class ManagerDashboard extends BaseDashboard {
 
         Label resultLabel = new Label("");
 
-        Button sendBtn = new Button("📤 Send to All");
+        Button sendBtn = new Button(" Send to All");
         sendBtn.setStyle(
             "-fx-background-color: #e74c3c;" +
             "-fx-text-fill: white;" +
@@ -321,11 +319,11 @@ public class ManagerDashboard extends BaseDashboard {
             if (!msg.isEmpty()) {
                 GlobalMessage gm = new GlobalMessage(manager, msg);
                 DataStore.getInstance().addMessage(new Message(manager, manager, msg));
-                resultLabel.setText("✅ Message sent to all employees!");
+                resultLabel.setText(" Message sent to all employees!");
                 resultLabel.setTextFill(Color.web("#27ae60"));
                 msgArea.clear();
             } else {
-                resultLabel.setText("⚠ Please enter a message");
+                resultLabel.setText(" Please enter a message");
                 resultLabel.setTextFill(Color.ORANGE);
             }
         });

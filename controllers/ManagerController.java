@@ -1,33 +1,38 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
-import enums.*;
+import models.User;
+import models.Course;
+import models.Teacher;
+import models.Student;
+import models.News;
+import enums.CourseType;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
-/**
- * Manager controller
- */
 public class ManagerController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public ManagerController() {
     }
 
-    public boolean addCourse(String name, String code, int credits, int targetYear, enums.CourseType type) {
+    public boolean addCourse(String name, String code, int credits, int targetYear, CourseType type) {
         long id = System.currentTimeMillis();
-        models.Course c = new models.Course(id, code, name, credits, type, targetYear);
-        DataStore.getInstance().addCourse(c);
+        Course c = new Course(id, code, name, credits, type, targetYear);
+        ds.addCourse(c);
         return true;
     }
 
-    public boolean assignCourse(models.Course course, models.Teacher teacher) {
+    public boolean assignCourse(Course course, Teacher teacher) {
         course.addLectureInstructor(teacher);
         teacher.getActiveCourses().add(course);
         return true;
     }
 
-    public boolean approveRegistration(models.Student student, models.Course course) {
+    public boolean approveRegistration(Student student, Course course) {
         if (!course.getEnrolledStudents().contains(student)) {
             course.addStudent(student);
         }
@@ -36,15 +41,15 @@ public class ManagerController {
 
     public void addNews(String title, String content, boolean isResearch) {
         String topic = isResearch ? "Research" : "General";
-        models.News n = new models.News(title, topic, content);
-        DataStore.getInstance().addNews(n);
+        News n = new News(title, topic, content);
+        ds.addNews(n);
     }
 
     public String createAcademicReport() {
         StringBuilder sb = new StringBuilder("=== ACADEMIC REPORT ===\n");
-        for (models.User u : DataStore.getInstance().getUsers()) {
-            if (u instanceof models.Student) {
-                models.Student s = (models.Student) u;
+        for (User u : ds.getUsers()) {
+            if (u instanceof Student) {
+                Student s = (Student) u;
                 sb.append(s.getFirstName()).append(" ").append(s.getLastName())
                   .append(" | GPA: ").append(String.format("%.2f", s.getGPA()))
                   .append(" | Credits: ").append(s.getCurrentCredits()).append("\n");
@@ -55,7 +60,7 @@ public class ManagerController {
 
     public List<Student> viewStudentsSorted(String criteria) {
         List<Student> students = new ArrayList<>();
-        for (User u : DataStore.getInstance().getUsers()) {
+        for (User u : ds.getUsers()) {
             if (u instanceof Student) students.add((Student) u);
         }
         if (criteria.equals("gpa")) {
@@ -67,7 +72,7 @@ public class ManagerController {
     }
 
     public boolean makeResearcher(User user) {
-        DataStore.getInstance().makeResearcher(user);
+        ds.makeResearcher(user);
         return true;
     }
 

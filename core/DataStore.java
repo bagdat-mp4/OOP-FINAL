@@ -7,9 +7,7 @@ import comparators.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * Singleton DataStore with serialization
- */
+
 public class DataStore implements Serializable {
     private static final String FILE_PATH = "data.ser";
     private static DataStore instance;
@@ -42,33 +40,33 @@ public class DataStore implements Serializable {
     }
 
     private void seedData() {
-        // Admin
+        
         Admin admin = new Admin(1L, "Admin", "System", "admin@uni.kz", "admin123");
         users.add(admin);
 
-        // Teacher
+        
         Teacher teacher = new Teacher(2L, "Aibek", "Seitkali", "aibek@uni.kz", "teacher123", 350000);
         teacher.setTitle(TeacherTitle.PROFESSOR);
         users.add(teacher);
 
-        // Student
+        
         Student student = new Student(3L, "Ainur", "Bekova", "ainur@uni.kz", "student123", "CS", 2);
         users.add(student);
 
-        // GraduateStudent
+        
         GraduateStudent gradStudent = new GraduateStudent(4L, "Daniyar", "Seilov", "daniyar@uni.kz", "grad123", "CS", 1);
         users.add(gradStudent);
 
-        // Manager
+        
         Manager manager = new Manager(5L, "Gulnara", "Muratova", "gulnara@uni.kz", "manager123", 400000);
         manager.setManagerType(ManagerType.OR);
         users.add(manager);
 
-        // TechSupport
+        
         TechSupportSpecialist techSupport = new TechSupportSpecialist(6L, "Yerlan", "Asanov", "yerlan@uni.kz", "tech123", 250000);
         users.add(techSupport);
 
-        // Courses
+        
         Course course1 = new Course(1L, "CS101", "Introduction to Programming", 5, CourseType.MAJOR, 1);
         course1.addLectureInstructor(teacher);
         courses.add(course1);
@@ -80,18 +78,18 @@ public class DataStore implements Serializable {
         teacher.getActiveCourses().add(course1);
         teacher.getActiveCourses().add(course2);
 
-        // Journal
+        
         Journal journal = new Journal("KBTU Research Journal");
         journals.add(journal);
 
-        // News
+        
         News researchNews = new News("Top Researcher Award", "Research", "Prof. Aibek published a breakthrough paper!");
         news.add(researchNews);
 
         News generalNews = new News("University Holiday", "General", "University is closed on May 1st.");
         news.add(generalNews);
 
-        // ResearcherDecorator for teacher
+        
         ResearcherDecorator teacherResearcher = new ResearcherDecorator(teacher);
         ResearchPaper paper = new ResearchPaper("Deep Learning Methods", "KBTU Journal", "10.1000/xyz123", 15, new Date());
         paper.setCitations(10);
@@ -99,11 +97,11 @@ public class DataStore implements Serializable {
         teacherResearcher.addPaper(paper);
         researcherMap.put(teacher, teacherResearcher);
 
-        // TechSupportRequest seed
+        
         TechSupportRequest req = new TechSupportRequest(student, "Projector in room 301 is broken");
         techSupportRequests.add(req);
 
-        // Rooms
+        
         Room r1 = new Room("101", 60, RoomType.LECTURE_HALL);
         Room r2 = new Room("202", 30, RoomType.SEMINAR_ROOM);
         Room r3 = new Room("303", 25, RoomType.COMPUTER_LAB);
@@ -139,7 +137,7 @@ public class DataStore implements Serializable {
         logs.add(new UserAction(user, details));
     }
 
-    // Getters
+    
     public List<User> getUsers() { return users; }
     public List<Course> getCourses() { return courses; }
     public List<Journal> getJournals() { return journals; }

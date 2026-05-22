@@ -13,9 +13,7 @@ import core.DataStore;
 import controllers.*;
 import enums.*;
 
-/**
- * Teacher Dashboard with courses, grading, and complaint features
- */
+
 public class TeacherDashboard extends BaseDashboard {
     private Teacher teacher;
     private TeacherController controller = new TeacherController();
@@ -41,14 +39,14 @@ public class TeacherDashboard extends BaseDashboard {
         nameLabel.setTextFill(Color.WHITE);
         Label titleLabel = new Label("👨‍🏫 " + (teacher.getTitle() != null ? teacher.getTitle() : "Teacher"));
         titleLabel.setTextFill(Color.web("#aaaaaa"));
-        Label ratingLabel = new Label("⭐ Rating: " + String.format("%.1f", teacher.getRating()));
+        Label ratingLabel = new Label(" Rating: " + String.format("%.1f", teacher.getRating()));
         ratingLabel.setTextFill(Color.web("#f39c12"));
         userInfo.getChildren().addAll(nameLabel, titleLabel, ratingLabel);
 
-        Button dashBtn = createMenuButton("Dashboard", "🏠");
+        Button dashBtn = createMenuButton("Dashboard", "");
         Button coursesBtn = createMenuButton("My Courses", "📚");
-        Button marksBtn = createMenuButton("Put Marks", "✏️");
-        Button complaintBtn = createMenuButton("Send Complaint", "📋");
+        Button marksBtn = createMenuButton("Put Marks", "️");
+        Button complaintBtn = createMenuButton("Send Complaint", "");
 
         sidebar.getChildren().addAll(userInfo, new Separator(), dashBtn, coursesBtn, marksBtn, complaintBtn);
         root.setLeft(sidebar);
@@ -114,9 +112,9 @@ public class TeacherDashboard extends BaseDashboard {
     private void showPutMarks() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("✏️ Put Marks"));
+        content.getChildren().add(createSectionTitle("️ Put Marks"));
 
-        // Form
+        
         GridPane form = new GridPane();
         form.setHgap(15);
         form.setVgap(15);
@@ -154,22 +152,22 @@ public class TeacherDashboard extends BaseDashboard {
         submitBtn.setOnAction(e -> {
             User u = DataStore.getInstance().findUserByEmail(studentEmail.getText().trim());
             if (!(u instanceof Student)) {
-                resultLabel.setText("❌ Student not found!");
+                resultLabel.setText(" Student not found!");
                 resultLabel.setTextFill(Color.RED);
                 return;
             }
             if (courseCombo.getValue() == null || typeCombo.getValue() == null) {
-                resultLabel.setText("⚠ Please select course and type");
+                resultLabel.setText(" Please select course and type");
                 resultLabel.setTextFill(Color.ORANGE);
                 return;
             }
             try {
                 double score = Double.parseDouble(scoreField.getText().trim());
                 controller.putMark((Student) u, courseCombo.getValue(), typeCombo.getValue(), score);
-                resultLabel.setText("✅ Mark saved successfully!");
+                resultLabel.setText(" Mark saved successfully!");
                 resultLabel.setTextFill(Color.web("#27ae60"));
             } catch (NumberFormatException ex) {
-                resultLabel.setText("❌ Invalid score!");
+                resultLabel.setText(" Invalid score!");
                 resultLabel.setTextFill(Color.RED);
             }
         });
@@ -187,7 +185,7 @@ public class TeacherDashboard extends BaseDashboard {
     private void showComplaintForm() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle("📋 Send Complaint to Dean"));
+        content.getChildren().add(createSectionTitle(" Send Complaint to Dean"));
 
         VBox form = new VBox(15);
         form.setPadding(new Insets(20));
@@ -206,7 +204,7 @@ public class TeacherDashboard extends BaseDashboard {
 
         Label resultLabel = new Label("");
 
-        Button sendBtn = new Button("📤 Send Complaint");
+        Button sendBtn = new Button(" Send Complaint");
         sendBtn.setStyle(
             "-fx-background-color: #e74c3c;" +
             "-fx-text-fill: white;" +
@@ -219,17 +217,17 @@ public class TeacherDashboard extends BaseDashboard {
         sendBtn.setOnAction(e -> {
             User u = DataStore.getInstance().findUserByEmail(studentEmail.getText().trim());
             if (!(u instanceof Student)) {
-                resultLabel.setText("❌ Student not found!");
+                resultLabel.setText(" Student not found!");
                 resultLabel.setTextFill(Color.RED);
                 return;
             }
             if (urgencyCombo.getValue() == null) {
-                resultLabel.setText("⚠ Select urgency level!");
+                resultLabel.setText(" Select urgency level!");
                 resultLabel.setTextFill(Color.ORANGE);
                 return;
             }
             controller.sendComplaint((Student) u, complaintText.getText(), urgencyCombo.getValue());
-            resultLabel.setText("✅ Complaint sent to Dean!");
+            resultLabel.setText(" Complaint sent to Dean!");
             resultLabel.setTextFill(Color.web("#27ae60"));
         });
 

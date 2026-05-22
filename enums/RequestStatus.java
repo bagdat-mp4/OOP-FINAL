@@ -1,8 +1,6 @@
 package enums;
 
-/**
- * 
- */
+
 public enum RequestStatus {
     NEW,
     VIEWED,

@@ -3,9 +3,7 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * News class representing university news
- */
+
 public class News implements Serializable {
 
     private String topic;
@@ -14,22 +12,18 @@ public class News implements Serializable {
     private List<Comment> comments;
     private String title;
 
-    /**
-     * Default constructor
-     */
+    
     public News() {
         this.comments = new ArrayList<>();
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public News(String title, String topic, String content) {
         this.title = title;
         this.topic = topic;
         this.content = content;
         this.comments = new ArrayList<>();
-        // Auto-pin if topic is Research
+        
         if (topic.equalsIgnoreCase("Research")) {
             this.isPinned = true;
         }
@@ -81,7 +75,7 @@ public class News implements Serializable {
 
     @Override
     public String toString() {
-        String prefix = isPinned ? "📌 [PINNED] " : "";
+        String prefix = isPinned ? " [PINNED] " : "";
         return prefix + "[" + topic + "] " + title + ": " + content;
     }
 

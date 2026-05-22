@@ -9,9 +9,7 @@ import javafx.stage.*;
 import javafx.scene.paint.Color;
 import models.User;
 
-/**
- * Abstract base class for all dashboard views
- */
+
 public abstract class BaseDashboard {
     protected Stage stage;
     protected User user;
@@ -24,9 +22,7 @@ public abstract class BaseDashboard {
         this.root = new BorderPane();
     }
 
-    /**
-     * Create top navigation bar with title and logout button
-     */
+    
     protected HBox createNavBar(String title) {
         HBox navbar = new HBox();
         navbar.setAlignment(Pos.CENTER_LEFT);
@@ -34,14 +30,14 @@ public abstract class BaseDashboard {
         navbar.setSpacing(15);
         navbar.setStyle("-fx-background-color: #1a1a2e;");
 
-        Label titleLabel = new Label("🎓 " + title);
+        Label titleLabel = new Label(" " + title);
         titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         titleLabel.setTextFill(Color.WHITE);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label userLabel = new Label("👤 " + user.getFirstName() + " " + user.getLastName());
+        Label userLabel = new Label(" " + user.getFirstName() + " " + user.getLastName());
         userLabel.setTextFill(Color.web("#aaaaaa"));
         userLabel.setFont(Font.font("Arial", 13));
 
@@ -62,9 +58,7 @@ public abstract class BaseDashboard {
         return navbar;
     }
 
-    /**
-     * Create sidebar menu button with icon
-     */
+    
     protected Button createMenuButton(String text, String icon) {
         Button btn = new Button(icon + "  " + text);
         btn.setPrefWidth(220);
@@ -97,9 +91,7 @@ public abstract class BaseDashboard {
         return btn;
     }
 
-    /**
-     * Create section title label
-     */
+    
     protected Label createSectionTitle(String text) {
         Label label = new Label(text);
         label.setFont(Font.font("Arial", FontWeight.BOLD, 20));
@@ -107,9 +99,7 @@ public abstract class BaseDashboard {
         return label;
     }
 
-    /**
-     * Create statistics card
-     */
+    
     protected VBox createCard(String title, String value, String color) {
         VBox card = new VBox(5);
         card.setPadding(new Insets(20));
@@ -132,9 +122,7 @@ public abstract class BaseDashboard {
         return card;
     }
 
-    /**
-     * Set content in the center of the dashboard
-     */
+    
     protected void setContent(Node content) {
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
@@ -142,8 +130,6 @@ public abstract class BaseDashboard {
         root.setCenter(scrollPane);
     }
 
-    /**
-     * Abstract method to be implemented by subclasses
-     */
+    
     public abstract void show();
 }

@@ -1,22 +1,22 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
-import enums.*;
+import models.User;
+import models.UserAction;
+import enums.UserType;
 import utils.UserFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
-/**
- * Admin controller
- */
 public class AdminController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public AdminController() {
     }
 
     public boolean createUser(String email, String firstName, String lastName, String role) {
-        DataStore ds = DataStore.getInstance();
         long id = System.currentTimeMillis();
         UserType type = UserType.valueOf(role.toUpperCase());
         User u = UserFactory.createUser(type, id, firstName, lastName, email, "password123");
@@ -27,7 +27,6 @@ public class AdminController {
     }
 
     public boolean removeUser(String email) {
-        DataStore ds = DataStore.getInstance();
         User u = ds.findUserByEmail(email);
         if (u == null) return false;
         ds.removeUser(u);
@@ -35,12 +34,12 @@ public class AdminController {
     }
 
     public List<User> getAllUsers() {
-        return DataStore.getInstance().getUsers();
+        return ds.getUsers();
     }
 
     public List<String> getLogFiles() {
         List<String> result = new ArrayList<>();
-        for (UserAction a : DataStore.getInstance().getLogs()) {
+        for (UserAction a : ds.getLogs()) {
             result.add(a.toString());
         }
         return result;

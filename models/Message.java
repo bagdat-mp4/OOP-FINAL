@@ -3,9 +3,7 @@ package models;
 import java.io.*;
 import java.util.*;
 
-/**
- * Message class for employee communication
- */
+
 public class Message implements Serializable {
 
     private Employee sender;
@@ -13,15 +11,11 @@ public class Message implements Serializable {
     private String text;
     private Date date;
 
-    /**
-     * Default constructor
-     */
+    
     public Message() {
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public Message(Employee sender, Employee receiver, String text) {
         this.sender = sender;
         this.receiver = receiver;

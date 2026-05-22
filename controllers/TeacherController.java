@@ -1,15 +1,21 @@
 package controllers;
 
 import core.DataStore;
-import models.*;
+import models.Course;
+import models.Teacher;
+import models.Student;
+import models.Mark;
+import models.Attendance;
 import enums.UrgencyLevel;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
 
-/**
- * Teacher controller
- */
 public class TeacherController {
+
+    private final DataStore ds = DataStore.getInstance();
 
     public TeacherController() {
     }
@@ -35,14 +41,14 @@ public class TeacherController {
             }
         }
         student.getTranscript().put(course, mark);
-        DataStore.getInstance().log(student, "Mark updated for course: " + course.getName());
+        ds.log(student, "Mark updated for course: " + course.getName());
         return true;
     }
 
     public boolean sendComplaint(Student student, String text, UrgencyLevel urgency) {
         System.out.println("[COMPLAINT to Dean] About: " + student.getFirstName() +
             " | Urgency: " + urgency + " | Text: " + text);
-        DataStore.getInstance().log(student, "Complaint sent: " + urgency);
+        ds.log(student, "Complaint sent: " + urgency);
         return true;
     }
 
@@ -69,16 +75,16 @@ public class TeacherController {
     }
 
     public void markAttendance(Course course, Student student, boolean present) {
-        Attendance att = new Attendance(student, course, new java.util.Date(), present);
-        DataStore.getInstance().addAttendance(att);
-        DataStore.getInstance().log(student, "Attendance: " + (present ? "PRESENT" : "ABSENT") + " in " + course.getName());
+        Attendance att = new Attendance(student, course, new Date(), present);
+        ds.addAttendance(att);
+        ds.log(student, "Attendance: " + (present ? "PRESENT" : "ABSENT") + " in " + course.getName());
     }
 
     public String getAttendanceReport(Course course) {
         StringBuilder sb = new StringBuilder("=== ATTENDANCE REPORT: " + course.getName() + " ===\n");
         Map<String, int[]> stats = new HashMap<>();
 
-        for (Attendance att : DataStore.getInstance().getAttendances()) {
+        for (Attendance att : ds.getAttendances()) {
             if (att.getCourse().equals(course)) {
                 String name = att.getStudent().getFirstName() + " " + att.getStudent().getLastName();
                 stats.putIfAbsent(name, new int[]{0, 0});

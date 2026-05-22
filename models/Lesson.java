@@ -5,9 +5,7 @@ import enums.LessonType;
 import java.io.*;
 import java.util.*;
 
-/**
- * Lesson class representing scheduled classes
- */
+
 public class Lesson implements Serializable {
 
     private LessonType lessonType;
@@ -15,15 +13,11 @@ public class Lesson implements Serializable {
     private Date schedule;
     private Course course;
 
-    /**
-     * Default constructor
-     */
+    
     public Lesson() {
     }
 
-    /**
-     * Constructor with parameters
-     */
+    
     public Lesson(LessonType lessonType, String room, Date schedule, Course course) {
         this.lessonType = lessonType;
         this.room = room;
