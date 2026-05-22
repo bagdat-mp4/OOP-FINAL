@@ -1,13 +1,17 @@
 package views;
 
 import controllers.AdminController;
+import controllers.EmployeeMessageController;
+import controllers.SearchController;
 import models.Admin;
+import models.TechSupportRequest;
 
 
 public class AdminView extends BaseView {
 
-    private Admin admin;
-    private AdminController controller = new AdminController();
+    private final Admin admin;
+    private final AdminController controller = new AdminController();
+    private final SearchController searchController = new SearchController();
 
     public AdminView(Admin admin) {
         this.admin = admin;
@@ -23,6 +27,8 @@ public class AdminView extends BaseView {
             System.out.println("4. View log files");
             System.out.println("5. Advanced search (regex)");
             System.out.println("6. Change language");
+            System.out.println("7. Set user password");
+            System.out.println("8. Call tech support");
             System.out.println("0. Logout");
             System.out.print("Choose: ");
             switch (readInt()) {
@@ -32,14 +38,17 @@ public class AdminView extends BaseView {
                 case 4: showLogFiles(); break;
                 case 5: advancedSearch(); break;
                 case 6: changeLanguageMenu(); break;
+                case 7: setUserPassword(); break;
+                case 8: callTechSupport(); break;
                 case 0: return;
+                default: System.out.println("Invalid choice!");
             }
         }
     }
 
     public void showAllUsers() {
         System.out.println("\n=== ALL USERS ===");
-        controller.getAllUsers().forEach(u -> System.out.println(u));
+        controller.getAllUsers().forEach(System.out::println);
     }
 
     public void showNewUserForm() {
@@ -63,6 +72,23 @@ public class AdminView extends BaseView {
         controller.getLogFiles().forEach(System.out::println);
     }
 
+    public void setUserPassword() {
+        System.out.print("User email: ");
+        String email = readString();
+        System.out.print("New password: ");
+        String password = readString();
+        boolean ok = controller.setPassword(email, password);
+        System.out.println(ok ? "Password updated!" : "User not found or invalid password!");
+    }
+
+    public void callTechSupport() {
+        System.out.print("Describe your issue: ");
+        String issue = readString();
+        if (issue.isBlank()) { System.out.println("Issue cannot be empty."); return; }
+        new EmployeeMessageController().callSupport(new TechSupportRequest(admin, issue));
+        System.out.println("Request submitted successfully!");
+    }
+
     public void advancedSearch() {
         System.out.println("=== ADVANCED SEARCH ===");
         System.out.println("1. Search users\n2. Search courses\n3. Search papers");
@@ -71,15 +97,13 @@ public class AdminView extends BaseView {
         System.out.print("Enter regex pattern (e.g. 'aibek|ainur' or '^A'): ");
         String pattern = readString();
 
-        controllers.SearchController sc = new controllers.SearchController();
         if (choice == 1) {
             System.out.println("Results:");
-            sc.searchUsersByRegex(pattern).forEach(u -> System.out.println("  " + u));
+            searchController.searchUsersByRegex(pattern).forEach(u -> System.out.println("  " + u));
         } else if (choice == 2) {
-            sc.searchCoursesByRegex(pattern).forEach(c -> System.out.println("  " + c));
+            searchController.searchCoursesByRegex(pattern).forEach(c -> System.out.println("  " + c));
         } else if (choice == 3) {
-            sc.searchPapersByRegex(pattern).forEach(p -> System.out.println("  " + p));
+            searchController.searchPapersByRegex(pattern).forEach(p -> System.out.println("  " + p));
         }
     }
-
 }

@@ -7,14 +7,11 @@ import enums.UserType;
 import utils.UserFactory;
 
 import java.util.List;
-import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class AdminController {
 
     private final DataStore ds = DataStore.getInstance();
-
-    public AdminController() {
-    }
 
     public boolean createUser(String email, String firstName, String lastName, String role) {
         long id = System.currentTimeMillis();
@@ -38,11 +35,16 @@ public class AdminController {
     }
 
     public List<String> getLogFiles() {
-        List<String> result = new ArrayList<>();
-        for (UserAction a : ds.getLogs()) {
-            result.add(a.toString());
-        }
-        return result;
+        return ds.getLogs().stream()
+            .map(UserAction::toString)
+            .collect(Collectors.toList());
     }
 
+    public boolean setPassword(String email, String newPassword) {
+        User u = ds.findUserByEmail(email);
+        if (u == null || newPassword == null || newPassword.isBlank()) return false;
+        u.setPassword(newPassword);
+        ds.log(u, "Password changed by admin");
+        return true;
+    }
 }

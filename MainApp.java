@@ -7,10 +7,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        
         core.DataStore.getInstance();
-
-        
         new LoginScreen(primaryStage).show();
     }
 

@@ -1,25 +1,43 @@
 package gui;
 
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
-import javafx.stage.*;
-import javafx.scene.paint.Color;
-import javafx.collections.*;
-import models.*;
+import controllers.StudentController;
 import core.DataStore;
-import controllers.*;
-import exceptions.*;
+import exceptions.CreditLimitException;
+import exceptions.MaxFailedReachedException;
+import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import models.Course;
+import models.Mark;
+import models.News;
+import models.Student;
+import models.StudentOrganization;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 
 public class StudentDashboard extends BaseDashboard {
-    private Student student;
-    private StudentController controller = new StudentController();
+
+    private final Student student;
+    private final StudentController controller = new StudentController();
 
     public StudentDashboard(Stage stage, Student student) {
         super(stage, student);
@@ -28,25 +46,22 @@ public class StudentDashboard extends BaseDashboard {
 
     @Override
     public void show() {
+        root = new javafx.scene.layout.BorderPane();
         root.setStyle("-fx-background-color: #f5f6fa;");
-
-        
         root.setTop(createNavBar("Student Portal"));
 
-        
         VBox sidebar = new VBox(5);
         sidebar.setPadding(new Insets(20, 10, 20, 10));
         sidebar.setStyle("-fx-background-color: #16213e; -fx-min-width: 240;");
 
-        
         VBox userInfo = new VBox(5);
         userInfo.setPadding(new Insets(10, 10, 20, 10));
         Label nameLabel = new Label(student.getFirstName() + " " + student.getLastName());
         nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         nameLabel.setTextFill(Color.WHITE);
-        Label majorLabel = new Label("📚 " + student.getMajor());
+        Label majorLabel = new Label(student.getMajor());
         majorLabel.setTextFill(Color.web("#aaaaaa"));
-        Label yearLabel = new Label(" Year " + student.getYearOfStudy());
+        Label yearLabel = new Label("Year " + student.getYearOfStudy());
         yearLabel.setTextFill(Color.web("#aaaaaa"));
         userInfo.getChildren().addAll(nameLabel, majorLabel, yearLabel);
 
@@ -58,21 +73,30 @@ public class StudentDashboard extends BaseDashboard {
         Button myCoursesBtn = createMenuButton("My Courses", "");
         Button transcriptBtn = createMenuButton("Transcript", "");
         Button organizationsBtn = createMenuButton("My Organizations", "");
-        Button newsBtn = createMenuButton("News", "");
+        Button newsBtn       = createMenuButton("News", "");
+        Button techSupportBtn = createMenuButton("Tech Support", "");
 
-        sidebar.getChildren().addAll(userInfo, sep, dashBtn, coursesBtn, myCoursesBtn, transcriptBtn, organizationsBtn, newsBtn);
+        sidebar.getChildren().addAll(userInfo, sep, dashBtn, coursesBtn, myCoursesBtn, transcriptBtn, organizationsBtn, newsBtn, techSupportBtn);
+
+        if (core.DataStore.getInstance().isResearcher(student)) {
+            Button researchBtn = createMenuButton("Researcher Mode", "");
+            researchBtn.setStyle(researchBtn.getStyle() + "-fx-text-fill: #f39c12;");
+            sidebar.getChildren().add(researchBtn);
+            researchBtn.setOnAction(e -> new ResearcherDashboard(stage, student, this::show).show());
+        }
+
+        addResearcherRequestButton(sidebar);
         root.setLeft(sidebar);
 
-        
         showDashboardContent();
 
-        
         dashBtn.setOnAction(e -> showDashboardContent());
         coursesBtn.setOnAction(e -> showAvailableCourses());
         myCoursesBtn.setOnAction(e -> showMyCourses());
         transcriptBtn.setOnAction(e -> showTranscript());
         organizationsBtn.setOnAction(e -> showMyOrganizations());
         newsBtn.setOnAction(e -> showNews());
+        techSupportBtn.setOnAction(e -> showTechSupportForm());
 
         Scene scene = new Scene(root, 1100, 700);
         stage.setScene(scene);
@@ -81,13 +105,10 @@ public class StudentDashboard extends BaseDashboard {
         stage.show();
     }
 
-    private void showDashboardContent() {
+    protected void showDashboardContent() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
 
-        Label title = createSectionTitle("Welcome, " + student.getFirstName() + "! 👋");
-
-        
         HBox cards = new HBox(15);
         cards.getChildren().addAll(
             createCard("Total Credits", String.valueOf(student.getCurrentCredits()), "#4a90d9"),
@@ -96,8 +117,7 @@ public class StudentDashboard extends BaseDashboard {
             createCard("Year", String.valueOf(student.getYearOfStudy()), "#8e44ad")
         );
 
-        
-        Label newsTitle = createSectionTitle(" Latest News");
+        Label newsTitle = createSectionTitle("Latest News");
         VBox newsList = new VBox(10);
         List<News> news = DataStore.getInstance().getNews();
         int count = 0;
@@ -106,30 +126,27 @@ public class StudentDashboard extends BaseDashboard {
             HBox newsItem = new HBox(10);
             newsItem.setPadding(new Insets(12));
             newsItem.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 8;" +
+                "-fx-background-color: white; -fx-background-radius: 8;" +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);"
             );
-            if (n.getIsPinned()) {
-                Label pin = new Label("");
-                newsItem.getChildren().add(pin);
-            }
-            Label newsLabel = new Label("[" + n.getTopic() + "] " + n.getTitle());
+            Label newsLabel = new Label((n.isPinned() ? "[PINNED] " : "") + "[" + n.getTopic() + "] " + n.getTitle());
             newsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
             newsItem.getChildren().add(newsLabel);
             newsList.getChildren().add(newsItem);
         }
 
-        content.getChildren().addAll(title, cards, newsTitle, newsList);
+        content.getChildren().addAll(
+            createSectionTitle("Welcome, " + student.getFirstName() + "!"),
+            cards, newsTitle, newsList
+        );
         setContent(content);
     }
 
-    private void showAvailableCourses() {
+    protected void showAvailableCourses() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle(" Available Courses"));
+        content.getChildren().add(createSectionTitle("Available Courses"));
 
-        
         TableView<Course> table = new TableView<>();
         table.setStyle("-fx-background-radius: 10;");
 
@@ -149,27 +166,31 @@ public class StudentDashboard extends BaseDashboard {
         typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
         typeCol.setPrefWidth(120);
 
-        
+        List<Course> enrolledCourses = controller.getEnrolledCourses(student);
+
+        TableColumn<Course, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
+            enrolledCourses.contains(data.getValue()) ? "Enrolled" : ""));
+        statusCol.setPrefWidth(90);
+
         TableColumn<Course, Void> actionCol = new TableColumn<>("Action");
         actionCol.setPrefWidth(120);
         actionCol.setCellFactory(col -> new TableCell<>() {
             final Button btn = new Button("Register");
             {
                 btn.setStyle(
-                    "-fx-background-color: #27ae60;" +
-                    "-fx-text-fill: white;" +
-                    "-fx-background-radius: 6;" +
-                    "-fx-cursor: hand;"
+                    "-fx-background-color: #27ae60; -fx-text-fill: white;" +
+                    "-fx-background-radius: 6; -fx-cursor: hand;"
                 );
                 btn.setOnAction(e -> {
                     Course course = getTableView().getItems().get(getIndex());
                     try {
                         controller.registerForCourse(student, course);
-                        showAlert(" Success", "Registered for: " + course.getName(), Alert.AlertType.INFORMATION);
+                        showAlert("Success", "Registered for: " + course.getName(), Alert.AlertType.INFORMATION);
                     } catch (CreditLimitException ex) {
-                        showAlert(" Credit Limit", ex.getMessage(), Alert.AlertType.ERROR);
+                        showAlert("Credit Limit", ex.getMessage(), Alert.AlertType.ERROR);
                     } catch (MaxFailedReachedException ex) {
-                        showAlert(" Failed Limit", ex.getMessage(), Alert.AlertType.ERROR);
+                        showAlert("Failed Limit", ex.getMessage(), Alert.AlertType.ERROR);
                     }
                 });
             }
@@ -180,7 +201,7 @@ public class StudentDashboard extends BaseDashboard {
             }
         });
 
-        table.getColumns().addAll(codeCol, nameCol, creditsCol, typeCol, actionCol);
+        table.getColumns().addAll(codeCol, nameCol, creditsCol, typeCol, statusCol, actionCol);
         table.setItems(FXCollections.observableArrayList(DataStore.getInstance().getCourses()));
         table.setPrefHeight(400);
 
@@ -188,31 +209,40 @@ public class StudentDashboard extends BaseDashboard {
         setContent(content);
     }
 
-    private void showMyCourses() {
+    protected void showMyCourses() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle(" My Registered Courses"));
+        content.getChildren().add(createSectionTitle("My Registered Courses"));
+
+        List<Course> enrolled = controller.getEnrolledCourses(student);
 
         VBox coursesList = new VBox(10);
-        if (student.getTranscript().isEmpty()) {
+        if (enrolled.isEmpty()) {
             Label empty = new Label("No courses registered yet.");
             empty.setTextFill(Color.web("#999999"));
             coursesList.getChildren().add(empty);
         } else {
-            for (Course c : student.getTranscript().keySet()) {
+            for (Course c : enrolled) {
                 HBox item = new HBox(20);
                 item.setPadding(new Insets(15));
                 item.setAlignment(Pos.CENTER_LEFT);
                 item.setStyle(
-                    "-fx-background-color: white;" +
-                    "-fx-background-radius: 10;" +
+                    "-fx-background-color: white; -fx-background-radius: 10;" +
                     "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);"
                 );
-                Label courseLabel = new Label(c.getCourseCode() + " — " + c.getName());
+                Label courseLabel = new Label(c.getCourseCode() + " - " + c.getName());
                 courseLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-                Label creditsLabel = new Label(c.getCredits() + " credits");
+                Label creditsLabel = new Label(c.getCredits() + " credits  |  " + c.getType());
                 creditsLabel.setTextFill(Color.web("#4a90d9"));
-                item.getChildren().addAll(courseLabel, creditsLabel);
+
+                Mark mark = student.getTranscript().get(c);
+                String gradeText = mark != null
+                    ? "Total: " + String.format("%.1f", mark.getTotal()) + " (" + mark.getLetter() + ")"
+                    : "No marks yet";
+                Label gradeLabel = new Label(gradeText);
+                gradeLabel.setTextFill(mark != null ? Color.web("#27ae60") : Color.web("#999999"));
+
+                item.getChildren().addAll(courseLabel, creditsLabel, gradeLabel);
                 coursesList.getChildren().add(item);
             }
         }
@@ -221,19 +251,18 @@ public class StudentDashboard extends BaseDashboard {
         setContent(content);
     }
 
-    private void showTranscript() {
+    @SuppressWarnings("unchecked")
+    protected void showTranscript() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle(" My Transcript"));
+        content.getChildren().add(createSectionTitle("My Transcript"));
 
-        
         HBox stats = new HBox(15);
         stats.getChildren().addAll(
             createCard("GPA", String.format("%.2f", student.getGPA()), "#4a90d9"),
             createCard("Credits", String.valueOf(student.getCurrentCredits()), "#27ae60")
         );
 
-        
         TableView<Map.Entry<Course, Mark>> table = new TableView<>();
 
         TableColumn<Map.Entry<Course, Mark>, String> courseCol = new TableColumn<>("Course");
@@ -277,9 +306,8 @@ public class StudentDashboard extends BaseDashboard {
     private void showMyOrganizations() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle(" Student Organizations"));
+        content.getChildren().add(createSectionTitle("Student Organizations"));
 
-        
         VBox form = new VBox(10);
         form.setPadding(new Insets(15));
         form.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
@@ -288,22 +316,18 @@ public class StudentDashboard extends BaseDashboard {
         CheckBox isHeadCheck = new CheckBox("I am the head");
         Button joinBtn = new Button("Join / Create");
         joinBtn.setStyle(
-            "-fx-background-color: #27ae60;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-radius: 6;" +
-            "-fx-cursor: hand;" +
-            "-fx-padding: 8 20;"
+            "-fx-background-color: #27ae60; -fx-text-fill: white;" +
+            "-fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 20;"
         );
         Label result = new Label("");
         joinBtn.setOnAction(e -> {
             String orgName = orgNameField.getText().trim();
             if (!orgName.isEmpty()) {
                 controller.joinOrganization(student, orgName, isHeadCheck.isSelected());
-                result.setText(" Joined: " + orgName);
+                result.setText("Joined: " + orgName);
                 result.setTextFill(Color.web("#27ae60"));
                 orgNameField.clear();
                 isHeadCheck.setSelected(false);
-                
                 showMyOrganizations();
             } else {
                 result.setText("Please enter organization name");
@@ -328,58 +352,40 @@ public class StudentDashboard extends BaseDashboard {
                 VBox orgCard = new VBox(10);
                 orgCard.setPadding(new Insets(20));
                 orgCard.setStyle(
-                    "-fx-background-color: white;" +
-                    "-fx-background-radius: 10;" +
+                    "-fx-background-color: white; -fx-background-radius: 10;" +
                     "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
                 );
 
-                
                 Label nameLabel = new Label(org.getName());
                 nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
                 nameLabel.setTextFill(Color.web("#16213e"));
 
-                
-                HBox headBox = new HBox(10);
-                headBox.setAlignment(Pos.CENTER_LEFT);
-                Label headIcon = new Label("");
-                headIcon.setFont(Font.font(14));
-                Label headLabel = new Label("Head: " +
-                    (org.getHead() != null ?
-                        org.getHead().getFirstName() + " " + org.getHead().getLastName() :
-                        "Not assigned"));
+                String headText = org.getHead() != null
+                    ? org.getHead().getFirstName() + " " + org.getHead().getLastName()
+                    : "Not assigned";
+                Label headLabel = new Label("Head: " + headText);
                 headLabel.setFont(Font.font("Arial", 13));
                 headLabel.setTextFill(Color.web("#555555"));
-                headBox.getChildren().addAll(headIcon, headLabel);
 
-                
-                HBox memberBox = new HBox(10);
-                memberBox.setAlignment(Pos.CENTER_LEFT);
-                Label memberIcon = new Label("");
-                memberIcon.setFont(Font.font(14));
                 Label memberLabel = new Label("Members: " + org.getMembers().size());
                 memberLabel.setFont(Font.font("Arial", 13));
                 memberLabel.setTextFill(Color.web("#555555"));
-                memberBox.getChildren().addAll(memberIcon, memberLabel);
 
-                
+                orgCard.getChildren().addAll(nameLabel, headLabel, memberLabel);
+
                 if (org.getHead() != null && org.getHead().equals(student)) {
-                    Label roleLabel = new Label(" You are the head of this organization");
+                    Label roleLabel = new Label("You are the head of this organization");
                     roleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
                     roleLabel.setTextFill(Color.web("#f39c12"));
-                    orgCard.getChildren().addAll(nameLabel, headBox, memberBox, roleLabel);
-                } else {
-                    orgCard.getChildren().addAll(nameLabel, headBox, memberBox);
+                    orgCard.getChildren().add(roleLabel);
                 }
 
                 orgList.getChildren().add(orgCard);
             }
 
-            
             HBox stats = new HBox(15);
             stats.setPadding(new Insets(10, 0, 0, 0));
-            stats.getChildren().add(
-                createCard("Total Organizations", String.valueOf(organizations.size()), "#8e44ad")
-            );
+            stats.getChildren().add(createCard("Total Organizations", String.valueOf(organizations.size()), "#8e44ad"));
             content.getChildren().add(stats);
         }
 
@@ -387,17 +393,15 @@ public class StudentDashboard extends BaseDashboard {
         setContent(content);
     }
 
-    private void showNews() {
+    protected void showNews() {
         VBox content = new VBox(20);
         content.setPadding(new Insets(30));
-        content.getChildren().add(createSectionTitle(" University News"));
+        content.getChildren().add(createSectionTitle("University News"));
 
         VBox newsList = new VBox(10);
         List<News> news = DataStore.getInstance().getNews();
-
-        
-        news.stream().filter(News::getIsPinned).forEach(n -> newsList.getChildren().add(createNewsCard(n)));
-        news.stream().filter(n -> !n.getIsPinned()).forEach(n -> newsList.getChildren().add(createNewsCard(n)));
+        news.stream().filter(News::isPinned).forEach(n -> newsList.getChildren().add(createNewsCard(n)));
+        news.stream().filter(n -> !n.isPinned()).forEach(n -> newsList.getChildren().add(createNewsCard(n)));
 
         content.getChildren().add(newsList);
         setContent(content);
@@ -406,16 +410,14 @@ public class StudentDashboard extends BaseDashboard {
     private VBox createNewsCard(News news) {
         VBox card = new VBox(8);
         card.setPadding(new Insets(15));
-        String borderColor = news.getIsPinned() ? "#f39c12" : "#4a90d9";
+        String borderColor = news.isPinned() ? "#f39c12" : "#4a90d9";
         card.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-background-radius: 10;" +
-            "-fx-border-color: " + borderColor + ";" +
-            "-fx-border-width: 0 0 0 4;" +
+            "-fx-background-color: white; -fx-background-radius: 10;" +
+            "-fx-border-color: " + borderColor + "; -fx-border-width: 0 0 0 4;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);"
         );
 
-        Label titleLabel = new Label((news.getIsPinned() ? " " : "") + news.getTitle());
+        Label titleLabel = new Label((news.isPinned() ? "[PINNED] " : "") + news.getTitle());
         titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
 
         Label topicLabel = new Label("Topic: " + news.getTopic());
@@ -429,7 +431,7 @@ public class StudentDashboard extends BaseDashboard {
         return card;
     }
 
-    private void showAlert(String title, String message, Alert.AlertType type) {
+    protected void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);

@@ -1,6 +1,9 @@
 package controllers;
 
 import core.DataStore;
+import models.Employee;
+import models.Manager;
+import models.Message;
 import models.User;
 import models.Course;
 import models.Teacher;
@@ -8,21 +11,17 @@ import models.Student;
 import models.News;
 import enums.CourseType;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ManagerController {
 
     private final DataStore ds = DataStore.getInstance();
 
-    public ManagerController() {
-    }
-
     public boolean addCourse(String name, String code, int credits, int targetYear, CourseType type) {
         long id = System.currentTimeMillis();
-        Course c = new Course(id, code, name, credits, type, targetYear);
-        ds.addCourse(c);
+        ds.addCourse(new Course(id, code, name, credits, type, targetYear));
         return true;
     }
 
@@ -41,8 +40,7 @@ public class ManagerController {
 
     public void addNews(String title, String content, boolean isResearch) {
         String topic = isResearch ? "Research" : "General";
-        News n = new News(title, topic, content);
-        ds.addNews(n);
+        ds.addNews(new News(title, topic, content));
     }
 
     public String createAcademicReport() {
@@ -59,10 +57,10 @@ public class ManagerController {
     }
 
     public List<Student> viewStudentsSorted(String criteria) {
-        List<Student> students = new ArrayList<>();
-        for (User u : ds.getUsers()) {
-            if (u instanceof Student) students.add((Student) u);
-        }
+        List<Student> students = ds.getUsers().stream()
+            .filter(u -> u instanceof Student)
+            .map(u -> (Student) u)
+            .collect(Collectors.toList());
         if (criteria.equals("gpa")) {
             students.sort((a, b) -> Double.compare(b.getGPA(), a.getGPA()));
         } else {
@@ -73,7 +71,43 @@ public class ManagerController {
 
     public boolean makeResearcher(User user) {
         ds.makeResearcher(user);
+        ds.removeResearcherRequest(user);
         return true;
     }
 
+    public List<User> getResearcherRequests() {
+        return ds.getResearcherRequests();
+    }
+
+    public void acceptResearcherRequest(User user) {
+        ds.makeResearcher(user);
+        ds.removeResearcherRequest(user);
+        ds.log(user, "Researcher status granted by manager");
+    }
+
+    public void rejectResearcherRequest(User user) {
+        ds.removeResearcherRequest(user);
+        ds.log(user, "Researcher request rejected by manager");
+    }
+
+    public void broadcastMessage(Manager sender, String text) {
+        for (User u : ds.getUsers()) {
+            if (u instanceof Employee && !u.equals(sender)) {
+                Message msg = new Message(sender, (Employee) u, "[BROADCAST] " + text);
+                ((Employee) u).getInbox().add(msg);
+                ds.addMessage(msg);
+            }
+        }
+        ds.log(sender, "Broadcast sent: " + text);
+    }
+
+    public List<Message> getInbox(Manager manager) {
+        return manager.getInbox();
+    }
+
+    public List<Message> getComplaints(Manager manager) {
+        return manager.getInbox().stream()
+            .filter(m -> m.getText().startsWith("[COMPLAINT]"))
+            .collect(Collectors.toList());
+    }
 }

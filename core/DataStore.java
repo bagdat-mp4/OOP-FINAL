@@ -2,10 +2,10 @@ package core;
 
 import models.*;
 import enums.*;
-import comparators.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class DataStore implements Serializable {
@@ -25,6 +25,7 @@ public class DataStore implements Serializable {
     private List<Schedule> schedules = new ArrayList<>();
     private List<Attendance> attendances = new ArrayList<>();
     private List<RecommendationLetter> letters = new ArrayList<>();
+    private List<User> researcherRequests = new ArrayList<>();
 
     private DataStore() {}
 
@@ -40,33 +41,26 @@ public class DataStore implements Serializable {
     }
 
     private void seedData() {
-        
         Admin admin = new Admin(1L, "Admin", "System", "admin@uni.kz", "admin123");
         users.add(admin);
 
-        
         Teacher teacher = new Teacher(2L, "Aibek", "Seitkali", "aibek@uni.kz", "teacher123", 350000);
         teacher.setTitle(TeacherTitle.PROFESSOR);
         users.add(teacher);
 
-        
         Student student = new Student(3L, "Ainur", "Bekova", "ainur@uni.kz", "student123", "CS", 2);
         users.add(student);
 
-        
         GraduateStudent gradStudent = new GraduateStudent(4L, "Daniyar", "Seilov", "daniyar@uni.kz", "grad123", "CS", 1);
         users.add(gradStudent);
 
-        
         Manager manager = new Manager(5L, "Gulnara", "Muratova", "gulnara@uni.kz", "manager123", 400000);
         manager.setManagerType(ManagerType.OR);
         users.add(manager);
 
-        
         TechSupportSpecialist techSupport = new TechSupportSpecialist(6L, "Yerlan", "Asanov", "yerlan@uni.kz", "tech123", 250000);
         users.add(techSupport);
 
-        
         Course course1 = new Course(1L, "CS101", "Introduction to Programming", 5, CourseType.MAJOR, 1);
         course1.addLectureInstructor(teacher);
         courses.add(course1);
@@ -78,18 +72,11 @@ public class DataStore implements Serializable {
         teacher.getActiveCourses().add(course1);
         teacher.getActiveCourses().add(course2);
 
-        
-        Journal journal = new Journal("KBTU Research Journal");
-        journals.add(journal);
+        journals.add(new Journal("KBTU Research Journal"));
 
-        
-        News researchNews = new News("Top Researcher Award", "Research", "Prof. Aibek published a breakthrough paper!");
-        news.add(researchNews);
+        news.add(new News("Top Researcher Award", "Research", "Prof. Aibek published a breakthrough paper!"));
+        news.add(new News("University Holiday", "General", "University is closed on May 1st."));
 
-        News generalNews = new News("University Holiday", "General", "University is closed on May 1st.");
-        news.add(generalNews);
-
-        
         ResearcherDecorator teacherResearcher = new ResearcherDecorator(teacher);
         ResearchPaper paper = new ResearchPaper("Deep Learning Methods", "KBTU Journal", "10.1000/xyz123", 15, new Date());
         paper.setCitations(10);
@@ -97,17 +84,11 @@ public class DataStore implements Serializable {
         teacherResearcher.addPaper(paper);
         researcherMap.put(teacher, teacherResearcher);
 
-        
-        TechSupportRequest req = new TechSupportRequest(student, "Projector in room 301 is broken");
-        techSupportRequests.add(req);
+        techSupportRequests.add(new TechSupportRequest(student, "Projector in room 301 is broken"));
 
-        
-        Room r1 = new Room("101", 60, RoomType.LECTURE_HALL);
-        Room r2 = new Room("202", 30, RoomType.SEMINAR_ROOM);
-        Room r3 = new Room("303", 25, RoomType.COMPUTER_LAB);
-        rooms.add(r1);
-        rooms.add(r2);
-        rooms.add(r3);
+        rooms.add(new Room("101", 60, RoomType.LECTURE_HALL));
+        rooms.add(new Room("202", 30, RoomType.SEMINAR_ROOM));
+        rooms.add(new Room("303", 25, RoomType.COMPUTER_LAB));
     }
 
     public void save() {
@@ -129,15 +110,8 @@ public class DataStore implements Serializable {
         }
     }
 
-    public void addLog(UserAction action) {
-        logs.add(action);
-    }
+    public void log(User user, String details) { logs.add(new UserAction(user, details)); }
 
-    public void log(User user, String details) {
-        logs.add(new UserAction(user, details));
-    }
-
-    
     public List<User> getUsers() { return users; }
     public List<Course> getCourses() { return courses; }
     public List<Journal> getJournals() { return journals; }
@@ -164,31 +138,37 @@ public class DataStore implements Serializable {
     public void addAttendance(Attendance a) { attendances.add(a); }
     public void addLetter(RecommendationLetter l) { letters.add(l); }
 
+    public List<User> getResearcherRequests() { return researcherRequests; }
+
+    public void addResearcherRequest(User u) {
+        if (!researcherRequests.contains(u) && !researcherMap.containsKey(u)) {
+            researcherRequests.add(u);
+        }
+    }
+
+    public void removeResearcherRequest(User u) { researcherRequests.remove(u); }
+
+    public boolean hasResearcherRequest(User u) { return researcherRequests.contains(u); }
+
     public void makeResearcher(User u) {
         if (!researcherMap.containsKey(u)) {
             researcherMap.put(u, new ResearcherDecorator(u));
         }
     }
 
-    public ResearcherDecorator getResearcher(User u) {
-        return researcherMap.get(u);
-    }
+    public ResearcherDecorator getResearcher(User u) { return researcherMap.get(u); }
 
-    public boolean isResearcher(User u) {
-        return researcherMap.containsKey(u);
-    }
+    public boolean isResearcher(User u) { return researcherMap.containsKey(u); }
 
     public User findUserByEmail(String email) {
         return users.stream().filter(u -> u.getEmail().equals(email)).findFirst().orElse(null);
     }
 
-    public void printAllUniversityPapers(Comparator<ResearchPaper> c) {
-        List<ResearchPaper> all = new ArrayList<>();
-        for (ResearcherDecorator rd : researcherMap.values()) {
-            all.addAll(rd.getPapers());
-        }
-        all.sort(c);
-        all.forEach(p -> System.out.println(p));
+    public void printAllUniversityPapers(Comparator<ResearchPaper> comparator) {
+        researcherMap.values().stream()
+            .flatMap(rd -> rd.getPapers().stream())
+            .sorted(comparator)
+            .forEach(System.out::println);
     }
 
     public void printTopCitedResearcher() {

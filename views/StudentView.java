@@ -1,10 +1,21 @@
 package views;
 
-import controllers.*;
-import models.*;
-import enums.*;
+import controllers.EmployeeMessageController;
+import controllers.ScheduleController;
+import controllers.StudentController;
 import core.DataStore;
-import exceptions.*;
+import exceptions.CreditLimitException;
+import exceptions.MaxFailedReachedException;
+import models.Course;
+import models.Mark;
+import models.News;
+import models.RecommendationLetter;
+import models.Schedule;
+import models.Student;
+import models.TechSupportRequest;
+
+import java.util.List;
+import java.util.Map;
 
 
 public class StudentView extends BaseView {
@@ -27,10 +38,11 @@ public class StudentView extends BaseView {
             System.out.println("5. Change language");
             System.out.println("6. View my schedule");
             System.out.println("7. View my recommendation letters");
+            System.out.println("8. Call tech support");
+            System.out.println("9. Rate teacher");
             System.out.println("0. Logout");
             System.out.print("Choose: ");
-            int choice = readInt();
-            switch (choice) {
+            switch (readInt()) {
                 case 1: showCourseRegisterForm(); break;
                 case 2: registerCourse(); break;
                 case 3: showTranscript(); break;
@@ -38,6 +50,8 @@ public class StudentView extends BaseView {
                 case 5: changeLanguageMenu(); break;
                 case 6: viewSchedule(); break;
                 case 7: viewRecommendationLetters(); break;
+                case 8: callTechSupport(); break;
+                case 9: rateTeacher(); break;
                 case 0: return;
                 default: System.out.println("Invalid choice!");
             }
@@ -46,9 +60,11 @@ public class StudentView extends BaseView {
 
     public void showCourseRegisterForm() {
         System.out.println("\n=== AVAILABLE COURSES ===");
-        java.util.List<Course> courses = controller.viewCourses();
+        List<Course> courses = controller.viewCourses();
+        List<Course> enrolled = controller.getEnrolledCourses(student);
         for (int i = 0; i < courses.size(); i++) {
-            System.out.println((i+1) + ". " + courses.get(i));
+            String tag = enrolled.contains(courses.get(i)) ? " [ENROLLED]" : "";
+            System.out.println((i + 1) + ". " + courses.get(i) + tag);
         }
     }
 
@@ -56,15 +72,15 @@ public class StudentView extends BaseView {
         showCourseRegisterForm();
         System.out.print("Enter course number: ");
         int idx = readInt() - 1;
-        java.util.List<Course> courses = controller.viewCourses();
+        List<Course> courses = controller.viewCourses();
         if (idx < 0 || idx >= courses.size()) {
             System.out.println("Invalid!");
             return;
         }
-        Course course = courses.get(idx);
         try {
-            boolean ok = controller.registerForCourse(student, course);
-            if (ok) System.out.println("Successfully registered for: " + course.getName());
+            if (controller.registerForCourse(student, courses.get(idx))) {
+                System.out.println("Successfully registered for: " + courses.get(idx).getName());
+            }
         } catch (CreditLimitException | MaxFailedReachedException e) {
             System.out.println("ERROR: " + e.getMessage());
         }
@@ -72,13 +88,13 @@ public class StudentView extends BaseView {
 
     public void showTranscript() {
         System.out.println("\n=== TRANSCRIPT ===");
-        java.util.Map<Course, Mark> transcript = controller.viewTranscript(student);
+        Map<Course, Mark> transcript = controller.viewTranscript(student);
         if (transcript.isEmpty()) {
             System.out.println("No marks yet.");
             return;
         }
-        for (java.util.Map.Entry<Course, Mark> entry : transcript.entrySet()) {
-            System.out.println(entry.getKey().getName() + " → " + entry.getValue());
+        for (Map.Entry<Course, Mark> entry : transcript.entrySet()) {
+            System.out.println(entry.getKey().getName() + " -> " + entry.getValue());
         }
         System.out.println("GPA: " + String.format("%.2f", student.getGPA()));
         System.out.println("Total credits: " + student.getCurrentCredits());
@@ -86,16 +102,48 @@ public class StudentView extends BaseView {
 
     public void showNews() {
         System.out.println("\n=== NEWS ===");
-        java.util.List<News> newsList = DataStore.getInstance().getNews();
-        newsList.stream().filter(News::getIsPinned).forEach(n -> System.out.println(n));
-        newsList.stream().filter(n -> !n.getIsPinned()).forEach(n -> System.out.println(n));
+        List<News> newsList = DataStore.getInstance().getNews();
+        newsList.stream().filter(News::isPinned).forEach(System.out::println);
+        newsList.stream().filter(n -> !n.isPinned()).forEach(System.out::println);
     }
 
     public void viewSchedule() {
-        controllers.ScheduleController sc = new controllers.ScheduleController();
-        java.util.List<Schedule> schedules = sc.getScheduleForStudent(student);
+        ScheduleController sc = new ScheduleController();
+        List<Schedule> schedules = sc.getScheduleForStudent(student);
         System.out.println("\n=== MY WEEKLY SCHEDULE ===");
         System.out.println(sc.printWeeklySchedule(schedules));
+    }
+
+    public void rateTeacher() {
+        List<Course> enrolled = controller.getEnrolledCourses(student);
+        if (enrolled.isEmpty()) { System.out.println("You are not enrolled in any courses."); return; }
+        System.out.println("\n=== RATE TEACHER ===");
+        for (int i = 0; i < enrolled.size(); i++) {
+            Course c = enrolled.get(i);
+            String teacher = c.getLectureInstructors().isEmpty() ? "No teacher"
+                : c.getLectureInstructors().get(0).getFirstName() + " " + c.getLectureInstructors().get(0).getLastName();
+            System.out.println((i + 1) + ". " + c.getName() + " — " + teacher);
+        }
+        System.out.print("Select course: ");
+        int idx = readInt() - 1;
+        if (idx < 0 || idx >= enrolled.size()) { System.out.println("Invalid!"); return; }
+        Course course = enrolled.get(idx);
+        if (course.getLectureInstructors().isEmpty()) { System.out.println("No teacher assigned."); return; }
+        System.out.print("Rating (1-5): ");
+        int rating = readInt();
+        if (controller.rateTeacher(course.getLectureInstructors().get(0), rating)) {
+            System.out.println("Rating submitted!");
+        } else {
+            System.out.println("Invalid rating. Must be 1-5.");
+        }
+    }
+
+    public void callTechSupport() {
+        System.out.print("Describe your issue: ");
+        String issue = readString();
+        if (issue.isBlank()) { System.out.println("Issue cannot be empty."); return; }
+        new EmployeeMessageController().callSupport(new TechSupportRequest(student, issue));
+        System.out.println("Request submitted successfully!");
     }
 
     public void viewRecommendationLetters() {
@@ -109,5 +157,4 @@ public class StudentView extends BaseView {
         }
         if (!found) System.out.println("No recommendation letters yet.");
     }
-
 }

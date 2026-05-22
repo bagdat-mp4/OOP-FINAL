@@ -32,7 +32,7 @@ public class TeacherTest {
         assert rating == 4.5 : "FAIL: getRating should be 4.5, got " + rating;
         System.out.println("PASS: getRating works");
 
-        boolean sent = controller.sendComplaint(student, "Test complaint", UrgencyLevel.HIGH);
+        boolean sent = controller.sendComplaint(teacher, student, "Test complaint", UrgencyLevel.HIGH);
         assert sent : "FAIL: sendComplaint";
         System.out.println("PASS: sendComplaint works");
     }

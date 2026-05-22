@@ -6,6 +6,7 @@ import models.Student;
 import models.Mark;
 import models.Teacher;
 import models.StudentOrganization;
+import models.User;
 import exceptions.CreditLimitException;
 import exceptions.MaxFailedReachedException;
 
@@ -50,14 +51,41 @@ public class StudentController {
         return true;
     }
 
+    public List<Course> getEnrolledCourses(Student student) {
+        List<Course> result = new java.util.ArrayList<>();
+        for (Course c : ds.getCourses()) {
+            if (c.getEnrolledStudents().contains(student)) {
+                result.add(c);
+            }
+        }
+        return result;
+    }
+
     public boolean joinOrganization(Student student, String orgName, boolean isHead) {
-        StudentOrganization org = new StudentOrganization(orgName);
+        StudentOrganization org = findOrCreateOrganization(orgName);
+
         if (isHead) {
             org.setHead(student);
-        } else {
-            org.addMember(student);
+        }
+        org.addMember(student);
+
+        if (!student.getOrganizations().contains(org)) {
+            student.getOrganizations().add(org);
         }
         return true;
+    }
+
+    private StudentOrganization findOrCreateOrganization(String name) {
+        for (User u : ds.getUsers()) {
+            if (u instanceof Student) {
+                for (StudentOrganization o : ((Student) u).getOrganizations()) {
+                    if (o.getName().equalsIgnoreCase(name)) {
+                        return o;
+                    }
+                }
+            }
+        }
+        return new StudentOrganization(name);
     }
 
 }

@@ -1,9 +1,8 @@
 package models;
 
 import exceptions.LowHIndexException;
-
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GraduateStudent extends Student {
@@ -11,13 +10,12 @@ public class GraduateStudent extends Student {
     private Researcher supervisor;
     private List<ResearchPaper> diplomaProjects;
 
-    
+
     public GraduateStudent() {
         super();
         this.diplomaProjects = new ArrayList<>();
     }
 
-    
     public GraduateStudent(long id, String firstName, String lastName, String email, String password, String major, int yearOfStudy) {
         super(id, firstName, lastName, email, password, major, yearOfStudy);
         this.diplomaProjects = new ArrayList<>();
@@ -30,19 +28,7 @@ public class GraduateStudent extends Student {
         this.supervisor = supervisor;
     }
 
-    public Researcher getSupervisor() {
-        return supervisor;
-    }
-
-    public List<ResearchPaper> getDiplomaProjects() {
-        return diplomaProjects;
-    }
-
-    public void setDiplomaProjects(List<ResearchPaper> diplomaProjects) {
-        this.diplomaProjects = diplomaProjects;
-    }
-
-    public String getFirstName() {
-        return super.getFirstName();
-    }
+    public Researcher getSupervisor() { return supervisor; }
+    public List<ResearchPaper> getDiplomaProjects() { return diplomaProjects; }
+    public void setDiplomaProjects(List<ResearchPaper> diplomaProjects) { this.diplomaProjects = diplomaProjects; }
 }

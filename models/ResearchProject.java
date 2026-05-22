@@ -2,24 +2,23 @@ package models;
 
 import core.DataStore;
 import exceptions.NotAResearcherException;
-
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ResearchProject implements Serializable {
 
     private String topic;
-    private List<models.Researcher> participants;
-    private List<models.ResearchPaper> publishedPapers;
+    private List<Researcher> participants;
+    private List<ResearchPaper> publishedPapers;
 
-    
+
     public ResearchProject() {
         this.participants = new ArrayList<>();
         this.publishedPapers = new ArrayList<>();
     }
 
-    
     public ResearchProject(String topic) {
         this.topic = topic;
         this.participants = new ArrayList<>();
@@ -31,41 +30,25 @@ public class ResearchProject implements Serializable {
         if (!ds.isResearcher(user)) {
             throw new NotAResearcherException("User " + user.getFirstName() + " is not a researcher!");
         }
-        models.ResearcherDecorator rd = ds.getResearcher(user);
-        participants.add(rd);
+        ResearcherDecorator rd = ds.getResearcher(user);
+        if (!participants.contains(rd)) {
+            participants.add(rd);
+        }
     }
 
-    public void addPaper(models.ResearchPaper paper) {
+    public void addPaper(ResearchPaper paper) {
         publishedPapers.add(paper);
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public List<models.Researcher> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<models.Researcher> participants) {
-        this.participants = participants;
-    }
-
-    public List<models.ResearchPaper> getPublishedPapers() {
-        return publishedPapers;
-    }
-
-    public void setPublishedPapers(List<models.ResearchPaper> publishedPapers) {
-        this.publishedPapers = publishedPapers;
-    }
+    public String getTopic() { return topic; }
+    public void setTopic(String topic) { this.topic = topic; }
+    public List<Researcher> getParticipants() { return participants; }
+    public void setParticipants(List<Researcher> participants) { this.participants = participants; }
+    public List<ResearchPaper> getPublishedPapers() { return publishedPapers; }
+    public void setPublishedPapers(List<ResearchPaper> publishedPapers) { this.publishedPapers = publishedPapers; }
 
     @Override
     public String toString() {
         return "Project: " + topic + " (" + participants.size() + " participants, " + publishedPapers.size() + " papers)";
     }
-
 }

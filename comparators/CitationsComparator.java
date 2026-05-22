@@ -8,7 +8,6 @@ public class CitationsComparator implements Comparator<ResearchPaper> {
 
     @Override
     public int compare(ResearchPaper a, ResearchPaper b) {
-        return Integer.compare(b.getCitations(), a.getCitations()); 
+        return Integer.compare(b.getCitations(), a.getCitations());
     }
-
 }
